@@ -85,20 +85,20 @@ if (existing.totalDocs > 0) {
   payload.logger.info(`Created ${STARTER_SECTIONS.length} starter sections.`);
 }
 
-// Only fill in Settings fields that are still empty — never overwrite Julia's
+// Only fill in "General" fields that are still empty — never overwrite Julia's
 // edits on a re-run.
-const currentSettings = await payload.findGlobal({ slug: "settings" });
-const settingsPatch: Record<string, unknown> = {};
-if (!currentSettings.welcomeTitle) settingsPatch.welcomeTitle = "Casita Julia";
-if (!currentSettings.welcomeIntro) {
-  settingsPatch.welcomeIntro =
+const currentGeneral = await payload.findGlobal({ slug: "general" });
+const generalPatch: Record<string, unknown> = {};
+if (!currentGeneral.welcomeTitle) generalPatch.welcomeTitle = "Casita Julia";
+if (!currentGeneral.welcomeIntro) {
+  generalPatch.welcomeIntro =
     "Welcome. This is where friends of Julia and Neal can see when the house in Deià is free, and find everything they need for a stay.";
 }
-if (Object.keys(settingsPatch).length > 0) {
-  await payload.updateGlobal({ slug: "settings", data: settingsPatch });
-  payload.logger.info(`Settings: filled in ${Object.keys(settingsPatch).join(", ")}.`);
+if (Object.keys(generalPatch).length > 0) {
+  await payload.updateGlobal({ slug: "general", data: generalPatch });
+  payload.logger.info(`General: filled in ${Object.keys(generalPatch).join(", ")}.`);
 } else {
-  payload.logger.info("Settings already set — left unchanged.");
+  payload.logger.info("General content already set — left unchanged.");
 }
 
 // ── Admin login ──────────────────────────────────────────────────────────────

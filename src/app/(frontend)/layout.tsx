@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import Link from "next/link";
 
-import { getSettings } from "@/lib/data";
+import { getGeneral } from "@/lib/data";
 import "./globals.css";
 
 const inter = Inter({
@@ -39,7 +39,7 @@ export default async function FrontendLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const settings = await getSettings().catch(() => null);
+  const general = await getGeneral().catch(() => null);
 
   return (
     <html
@@ -75,7 +75,7 @@ export default async function FrontendLayout({
 
         <footer className="border-t border-border">
           <div className="mx-auto max-w-3xl px-6 py-6 text-sm text-muted">
-            {settings?.footerNote ??
+            {general?.footerNote ??
               "A private family home in Deià, Mallorca — please treat it with care."}
           </div>
         </footer>

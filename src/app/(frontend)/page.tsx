@@ -1,14 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { getPhotos, getSettings } from "@/lib/data";
+import { getPhotos, getGeneral } from "@/lib/data";
 
 // Reads the (gated) database and changes only via the admin panel.
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [settings, photos] = await Promise.all([
-    getSettings().catch(() => null),
+  const [general, photos] = await Promise.all([
+    getGeneral().catch(() => null),
     getPhotos().catch(() => []),
   ]);
 
@@ -18,11 +18,11 @@ export default async function HomePage() {
     <div className="space-y-10">
       <section className="space-y-4">
         <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
-          {settings?.welcomeTitle || "Casita Julia"}
+          {general?.welcomeTitle || "Casita Julia"}
         </h1>
-        {settings?.welcomeIntro ? (
+        {general?.welcomeIntro ? (
           <p className="max-w-prose text-lg leading-8 text-muted">
-            {settings.welcomeIntro}
+            {general.welcomeIntro}
           </p>
         ) : (
           <p className="max-w-prose text-lg leading-8 text-muted">
@@ -74,11 +74,11 @@ export default async function HomePage() {
         </Link>
       </section>
 
-      {settings?.howToBook ? (
+      {general?.howToBook ? (
         <section className="rounded-xl border border-border bg-surface p-6">
           <h2 className="font-serif text-lg font-semibold">How to book</h2>
           <p className="mt-2 whitespace-pre-line leading-7 text-muted">
-            {settings.howToBook}
+            {general.howToBook}
           </p>
         </section>
       ) : null}

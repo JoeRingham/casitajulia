@@ -96,10 +96,10 @@ export interface Config {
   };
   fallbackLocale: null;
   globals: {
-    settings: Setting;
+    general: General;
   };
   globalsSelect: {
-    settings: SettingsSelect<false> | SettingsSelect<true>;
+    general: GeneralSelect<false> | GeneralSelect<true>;
   };
   locale: null;
   widgets: {
@@ -584,9 +584,9 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "settings".
+ * via the `definition` "general".
  */
-export interface Setting {
+export interface General {
   id: number;
   welcomeTitle?: string | null;
   /**
@@ -603,9 +603,9 @@ export interface Setting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "settings_select".
+ * via the `definition` "general_select".
  */
-export interface SettingsSelect<T extends boolean = true> {
+export interface GeneralSelect<T extends boolean = true> {
   welcomeTitle?: T;
   welcomeIntro?: T;
   howToBook?: T;

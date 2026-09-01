@@ -13,7 +13,7 @@ import { Media } from "@/collections/Media";
 import { Photos } from "@/collections/Photos";
 import { Sections } from "@/collections/Sections";
 import { Users } from "@/collections/Users";
-import { Settings } from "@/globals/Settings";
+import { General } from "@/globals/General";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,7 +28,7 @@ export default buildConfig({
     components: {},
   },
   collections: [Users, Media, Photos, Sections, Bookings, Blocks],
-  globals: [Settings],
+  globals: [General],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {

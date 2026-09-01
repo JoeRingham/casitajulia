@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { CalendarLegend, MonthCalendar } from "@/components/MonthCalendar";
 import type { DayState } from "@/lib/availability";
-import { getPublicAvailability, getSettings } from "@/lib/data";
+import { getPublicAvailability, getGeneral } from "@/lib/data";
 import {
   addMonths,
   firstDay,
@@ -25,8 +25,8 @@ export default async function CalendarPage({
   const current = parseMonthParam(m);
   const next = addMonths(current, 1);
 
-  const [settings, availability] = await Promise.all([
-    getSettings().catch(() => null),
+  const [general, availability] = await Promise.all([
+    getGeneral().catch(() => null),
     getPublicAvailability(firstDay(current), lastDay(next)).catch(
       () => new Map<string, DayState>(),
     ),
@@ -67,7 +67,7 @@ export default async function CalendarPage({
       <section className="rounded-xl border border-border bg-surface p-6">
         <h2 className="font-serif text-lg font-semibold">How to book</h2>
         <p className="mt-2 whitespace-pre-line leading-7 text-muted">
-          {settings?.howToBook ||
+          {general?.howToBook ||
             "Message Julia and/or Neal with the dates you'd like. They'll confirm here once it's agreed."}
         </p>
       </section>

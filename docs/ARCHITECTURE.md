@@ -148,12 +148,12 @@ Two Payload terms:
   each collection. Each is a function returning `true`/`false`. This is Payload's
   permission system, enforced on the REST/GraphQL API.
 
-### `src/globals/Settings.ts` — site-wide editable text _(custom)_
+### `src/globals/General.ts` — site-wide editable text _(custom)_
 
 A Payload "global" is a single record, not a list: the home heading, intro, "how
-to book" text, footer line. The `slug` is `settings` (it names the DB table and
-is used in code as `findGlobal({ slug: "settings" })`); the admin shows it under
-the friendlier label **"General"**.
+to book" text, footer line. The slug is `general` — that names the DB table, is
+read in code as `findGlobal({ slug: "general" })`, and shows in the admin as the
+**"General"** panel.
 
 ### `src/lib/` — our shared logic _(all custom, no Payload)_
 
@@ -163,7 +163,7 @@ the friendlier label **"General"**.
 | `access.ts`       | Two helpers (`authenticated`, `anyone`) reused across collections so the rules read consistently.               |
 | `availability.ts` | The booking maths: bookings + blocks → `day → "available" \| "unavailable"`. Plus `assertNoConflict()`. See §7. |
 | `calendar.ts`     | Villa-day normalisation + pure month-grid arithmetic. See §7.                                                   |
-| `data.ts`         | Server-side fetch helpers (`getSettings`, `getSections`, `getPhotos`, `getPublicAvailability`) — these call Payload's Local API. |
+| `data.ts`         | Server-side fetch helpers (`getGeneral`, `getSections`, `getPhotos`, `getPublicAvailability`) — these call Payload's Local API. |
 
 ### `src/fields/villaDate.ts` — a reusable field _(custom)_
 
@@ -187,7 +187,7 @@ it will reset the password.)
 ### `src/payload-types.ts` — _(generated)_
 
 `npm run generate:types` writes this from your collections. It's why
-`settings.welcomeIntro` and `photo.url` are type-checked. **Never edit by
+`general.welcomeIntro` and `photo.url` are type-checked. **Never edit by
 hand** — re-generate after changing a collection.
 
 ---

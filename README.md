@@ -65,7 +65,7 @@ local-disk storage won't work there.
 | `src/lib/gate.ts` | Signs / checks the friends cookie. |
 | `src/payload.config.ts` | Payload config: DB, storage, collections. |
 | `src/collections/*` | `users`, `media`, `photos`, `sections`, `bookings`, `blocks`. |
-| `src/globals/Settings.ts` | Editable site copy — labelled "General" in the admin. |
+| `src/globals/General.ts` | Editable site copy — the "General" panel in the admin. |
 | `src/lib/availability.ts` | Turns bookings + blocks into "available / unavailable" days. |
 | `src/lib/calendar.ts` | Villa-day normalisation + month-grid maths. |
 | `src/app/(frontend)/*` | The friend-facing site. |

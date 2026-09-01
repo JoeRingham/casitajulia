@@ -13,9 +13,9 @@ export async function getClient() {
   return getPayload({ config: configPromise });
 }
 
-export async function getSettings() {
+export async function getGeneral() {
   const payload = await getClient();
-  return payload.findGlobal({ slug: "settings" });
+  return payload.findGlobal({ slug: "general" });
 }
 
 export async function getSections() {

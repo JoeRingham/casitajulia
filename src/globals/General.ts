@@ -3,15 +3,14 @@ import type { GlobalConfig } from "payload";
 import { anyone, authenticated } from "@/lib/access";
 
 /**
- * Site-wide copy Julia can edit. Deliberately a handful of plain fields rather
- * than anything clever.
+ * Site-wide copy Julia can edit — home heading, intro, "how to book" text,
+ * footer line. A Payload "global" is a single record, not a list.
  *
- * The `slug` stays "settings" (it names the DB table and is used in code as
- * findGlobal({ slug: "settings" })). Only the admin-facing label is "General".
+ * Slug `general` → the DB table is `general`, the admin shows it as "General",
+ * and code reads it as `findGlobal({ slug: "general" })`.
  */
-export const Settings: GlobalConfig = {
-  slug: "settings",
-  label: "General",
+export const General: GlobalConfig = {
+  slug: "general",
   admin: { group: "Content" },
   access: {
     read: anyone,
@@ -47,7 +46,8 @@ export const Settings: GlobalConfig = {
       name: "footerNote",
       type: "text",
       label: "Footer line",
-      defaultValue: "A private family home in Deià, Mallorca — please treat it with care.",
+      defaultValue:
+        "A private family home in Deià, Mallorca — please treat it with care.",
     },
   ],
 };

@@ -66,8 +66,9 @@ The text box is a normal editor — headings, bold, lists, links all work.
 
 ## Changing the passwords
 
-- **The friends password** (the one you hand out): Joe changes this — it lives in
-  the site's settings, not the admin panel.
+- **The friends password** (the one you hand out): Joe changes this — it's a
+  server setting, not something in this admin panel. Changing it signs every
+  friend out, so they'll need the new password next visit.
 - **The admin password**: Joe sets it up initially. Change it yourself from the
   account menu, top-right of the admin panel — that sticks, even across updates
   to the site. If it's ever forgotten, Joe can reset it.
