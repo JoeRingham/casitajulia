@@ -29,7 +29,8 @@ First run:
 
 1. Open the site → you'll be sent to `/enter`. Type `SITE_PASSWORD`.
 2. Go to `/admin` → log in with `ADMIN_USERNAME` / `ADMIN_PASSWORD`.
-   Re-run `npm run seed` to reset the password.
+   Change it from the account menu once you're in; the seed won't overwrite it.
+   Forgotten it? `ADMIN_RESET_PASSWORD=true npm run seed`.
 
 ### Environment variables
 

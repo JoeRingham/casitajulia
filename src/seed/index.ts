@@ -85,48 +85,69 @@ if (existing.totalDocs > 0) {
   payload.logger.info(`Created ${STARTER_SECTIONS.length} starter sections.`);
 }
 
-await payload.updateGlobal({
-  slug: "settings",
-  data: {
-    welcomeTitle: "Casita Julia",
-    welcomeIntro:
-      "Welcome. This is where friends of Julia and Neal can see when the house in Deià is free, and find everything they need for a stay.",
-  },
-});
-payload.logger.info("Settings initialised.");
+// Only fill in Settings fields that are still empty — never overwrite Julia's
+// edits on a re-run.
+const currentSettings = await payload.findGlobal({ slug: "settings" });
+const settingsPatch: Record<string, unknown> = {};
+if (!currentSettings.welcomeTitle) settingsPatch.welcomeTitle = "Casita Julia";
+if (!currentSettings.welcomeIntro) {
+  settingsPatch.welcomeIntro =
+    "Welcome. This is where friends of Julia and Neal can see when the house in Deià is free, and find everything they need for a stay.";
+}
+if (Object.keys(settingsPatch).length > 0) {
+  await payload.updateGlobal({ slug: "settings", data: settingsPatch });
+  payload.logger.info(`Settings: filled in ${Object.keys(settingsPatch).join(", ")}.`);
+} else {
+  payload.logger.info("Settings already set — left unchanged.");
+}
 
 // ── Admin login ──────────────────────────────────────────────────────────────
-// One shared account, username `admin` by default. Password comes from the
-// environment. Re-running this script resets the password to ADMIN_PASSWORD,
-// which is the supported way to change it from the command line.
+// One shared account, username `admin` by default.
+//
+// This CREATES the account if it doesn't exist yet. It does NOT touch an
+// existing account's password — a password changed in the admin UI is kept, and
+// a redeploy never runs this script anyway. To deliberately reset the password
+// from the command line, set ADMIN_RESET_PASSWORD=true and re-run `npm run seed`.
 const adminUsername = process.env.ADMIN_USERNAME || "admin";
 const adminPassword = process.env.ADMIN_PASSWORD;
+const adminForceReset = process.env.ADMIN_RESET_PASSWORD === "true";
 
-if (!adminPassword) {
-  payload.logger.warn(
-    "ADMIN_PASSWORD not set — skipping admin user. Set it in .env and re-run `npm run seed`.",
-  );
-} else {
-  const existing = await payload.find({
-    collection: "users",
-    where: { username: { equals: adminUsername } },
-    limit: 1,
-  });
+const existingAdmin = await payload.find({
+  collection: "users",
+  where: { username: { equals: adminUsername } },
+  limit: 1,
+});
 
-  if (existing.docs.length > 0) {
+if (existingAdmin.docs.length > 0) {
+  if (adminForceReset && adminPassword) {
     await payload.update({
       collection: "users",
-      id: existing.docs[0].id,
+      id: existingAdmin.docs[0].id,
       data: { password: adminPassword },
     });
-    payload.logger.info(`Admin user "${adminUsername}" password reset.`);
+    payload.logger.info(
+      `Admin user "${adminUsername}" password reset from ADMIN_PASSWORD.`,
+    );
+  } else if (adminForceReset) {
+    payload.logger.warn(
+      "ADMIN_RESET_PASSWORD=true but ADMIN_PASSWORD is empty — password left unchanged.",
+    );
   } else {
-    await payload.create({
-      collection: "users",
-      data: { username: adminUsername, password: adminPassword, name: "Admin" },
-    });
-    payload.logger.info(`Admin user "${adminUsername}" created.`);
+    payload.logger.info(
+      `Admin user "${adminUsername}" already exists — left unchanged. ` +
+        "(Set ADMIN_RESET_PASSWORD=true to reset its password.)",
+    );
   }
+} else if (!adminPassword) {
+  payload.logger.warn(
+    "No admin user yet and ADMIN_PASSWORD not set — skipping. Set it in .env and re-run `npm run seed`.",
+  );
+} else {
+  await payload.create({
+    collection: "users",
+    data: { username: adminUsername, password: adminPassword, name: "Admin" },
+  });
+  payload.logger.info(`Admin user "${adminUsername}" created.`);
 }
 
 process.exit(0);

@@ -68,8 +68,9 @@ The text box is a normal editor — headings, bold, lists, links all work.
 
 - **The friends password** (the one you hand out): Joe changes this — it lives in
   the site's settings, not the admin panel.
-- **The admin password**: Joe sets it (re-running the seed script). You can also
-  change it from the account menu, top-right of the admin panel.
+- **The admin password**: Joe sets it up initially. Change it yourself from the
+  account menu, top-right of the admin panel — that sticks, even across updates
+  to the site. If it's ever forgotten, Joe can reset it.
 
 ## Adding another admin (e.g. so Julia and Neal each have a login)
 
