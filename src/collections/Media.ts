@@ -4,7 +4,7 @@ import { anyone, authenticated } from "@/lib/access";
 
 /**
  * Images embedded inside rich-text "Info" sections. Villa gallery photos live
- * in their own `photos` collection so Julia can reorder them.
+ * in their own `photos` collection so they can be reordered independently.
  */
 export const Media: CollectionConfig = {
   slug: "media",

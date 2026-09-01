@@ -12,9 +12,9 @@ import { villaDayString } from "@/lib/calendar";
  * Blocks (family use, maintenance, closed seasons) use inclusive day semantics:
  * "from D1 until D2" means every day D1 .. D2 is unavailable.
  *
- * CLEANER_GAP_DAYS is wired through everywhere but left at 0 for now — Julia
- * wants to revisit the exact turnaround rule later. Bumping this constant is all
- * that's needed to reserve N days after every check-out for the cleaner.
+ * CLEANER_GAP_DAYS is wired through everywhere but left at 0 for now — the exact
+ * turnaround rule is still to be decided. Bumping this constant is all that's
+ * needed to reserve N days after every check-out for the cleaner.
  */
 export const CLEANER_GAP_DAYS = 0;
 

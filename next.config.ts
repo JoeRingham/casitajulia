@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // The whole site sits behind a shared password (see src/proxy.ts) and must
-  // never be indexed — Julia is legally not running a rental business.
+  // never be indexed — this is a private home, not a rental listing.
   async headers() {
     return [
       {

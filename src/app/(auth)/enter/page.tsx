@@ -14,7 +14,7 @@ export default async function EnterPage({
           Casita Julia
         </h1>
         <p className="text-sm text-muted">
-          This site is private. Enter the password Julia gave you.
+          This site is private. Enter the password to access.
         </p>
       </div>
       <EnterForm next={next ?? "/"} />

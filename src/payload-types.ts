@@ -588,13 +588,17 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface General {
   id: number;
+  /**
+   * Used in site help text — e.g. the sign-in page: "ask … for the latest password".
+   */
+  ownerNames?: string | null;
   welcomeTitle?: string | null;
   /**
    * A short paragraph shown on the landing page.
    */
   welcomeIntro?: string | null;
   /**
-   * Shown on the calendar page. No form — friends already know how to reach Julia and Neal.
+   * Shown on the calendar page. No form — friends already know how to reach the owners.
    */
   howToBook?: string | null;
   footerNote?: string | null;
@@ -606,6 +610,7 @@ export interface General {
  * via the `definition` "general_select".
  */
 export interface GeneralSelect<T extends boolean = true> {
+  ownerNames?: T;
   welcomeTitle?: T;
   welcomeIntro?: T;
   howToBook?: T;

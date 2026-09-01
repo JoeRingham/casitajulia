@@ -8,7 +8,7 @@ import { GATE_COOKIE, verifyGateToken } from "@/lib/gate";
  *
  * Puts the whole site behind the shared friends password. The only things that
  * stay open are the password page itself and static assets. The admin panel is
- * behind this gate too — Julia enters the site password once (90-day cookie),
+ * behind this gate too — an admin enters the site password once (90-day cookie),
  * then logs in to Payload separately.
  */
 

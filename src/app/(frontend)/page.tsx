@@ -24,12 +24,7 @@ export default async function HomePage() {
           <p className="max-w-prose text-lg leading-8 text-muted">
             {general.welcomeIntro}
           </p>
-        ) : (
-          <p className="max-w-prose text-lg leading-8 text-muted">
-            Welcome. This is where friends of Julia and Neal can see when the
-            house in Deià is free, and find everything needed for a stay.
-          </p>
-        )}
+        ) : null}
       </section>
 
       {hero?.url ? (

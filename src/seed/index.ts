@@ -58,7 +58,7 @@ const STARTER_SECTIONS = [
   },
   {
     title: "Before you leave",
-    body: "Strip the beds, empty the fridge, close the shutters, lock up, and let Julia know you're away so the cleaner can come.",
+    body: "Strip the beds, empty the fridge, close the shutters, lock up, and let the owners know you're away so the cleaner can come.",
   },
   {
     title: "Local tips",
@@ -85,14 +85,14 @@ if (existing.totalDocs > 0) {
   payload.logger.info(`Created ${STARTER_SECTIONS.length} starter sections.`);
 }
 
-// Only fill in "General" fields that are still empty — never overwrite Julia's
+// Only fill in "General" fields that are still empty — never overwrite existing
 // edits on a re-run.
 const currentGeneral = await payload.findGlobal({ slug: "general" });
 const generalPatch: Record<string, unknown> = {};
 if (!currentGeneral.welcomeTitle) generalPatch.welcomeTitle = "Casita Julia";
 if (!currentGeneral.welcomeIntro) {
   generalPatch.welcomeIntro =
-    "Welcome. This is where friends of Julia and Neal can see when the house in Deià is free, and find everything they need for a stay.";
+    "Welcome - see when our house in Deià is free, and find everything you need for a stay!";
 }
 if (Object.keys(generalPatch).length > 0) {
   await payload.updateGlobal({ slug: "general", data: generalPatch });

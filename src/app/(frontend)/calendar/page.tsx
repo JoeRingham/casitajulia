@@ -64,13 +64,14 @@ export default async function CalendarPage({
 
       <CalendarLegend />
 
-      <section className="rounded-xl border border-border bg-surface p-6">
-        <h2 className="font-serif text-lg font-semibold">How to book</h2>
-        <p className="mt-2 whitespace-pre-line leading-7 text-muted">
-          {general?.howToBook ||
-            "Message Julia and/or Neal with the dates you'd like. They'll confirm here once it's agreed."}
-        </p>
-      </section>
+      {general?.howToBook ? (
+        <section className="rounded-xl border border-border bg-surface p-6">
+          <h2 className="font-serif text-lg font-semibold">How to book</h2>
+          <p className="mt-2 whitespace-pre-line leading-7 text-muted">
+            {general.howToBook}
+          </p>
+        </section>
+      ) : null}
     </div>
   );
 }

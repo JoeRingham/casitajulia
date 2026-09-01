@@ -2,7 +2,7 @@
 
 A tour of how this codebase is put together, written for someone new to
 Next.js. If you just want to run it, see the [README](../README.md). If you're
-Julia or Neal, see [ADMIN-GUIDE.md](ADMIN-GUIDE.md).
+one of the owners, see [ADMIN-GUIDE.md](ADMIN-GUIDE.md).
 
 ---
 
@@ -14,7 +14,7 @@ This is **one Next.js application** that contains two things:
 | --------------- | -------------------------------- | -------------------------- |
 | URL             | `casitajulia.com/…`              | `casitajulia.com/admin`    |
 | Built by        | us, from scratch                 | Payload CMS (a library)    |
-| Who uses it     | friends with the shared password | Julia & Neal               |
+| Who uses it     | friends with the shared password | the owners                 |
 
 Both halves read and write **one Postgres database** (Supabase). There is no
 separate backend server — the Next.js app _is_ the backend. It all deploys to
@@ -200,15 +200,14 @@ Both are Payload "upload" collections — they store image files — but they're
 different jobs:
 
 - **`photos`** is the **villa gallery**: an ordered set (drag-to-reorder), each
-  with a caption, shown on `/villa` and as the home-page hero. Julia curates
+  with a caption, shown on `/villa` and as the home-page hero. The owners curate
   these as a collection.
 - **`media`** is for images dropped **inside the rich text of an Info section**
-  — a photo of the fuse box, a hand-drawn parking map. When Julia clicks "add
-  image" in the section editor, it uploads here. Not ordered, never shown as a
-  gallery.
+  — a photo of the fuse box, a hand-drawn parking map. Clicking "add image" in
+  the section editor uploads here. Not ordered, never shown as a gallery.
 
-They're kept separate so inline screenshots don't pollute the gallery. If Julia
-never embeds images in Info text, `media` simply stays empty and harmless.
+They're kept separate so inline screenshots don't pollute the gallery. If no
+images are ever embedded in Info text, `media` simply stays empty and harmless.
 
 ### Two ways to read Payload data
 
@@ -308,12 +307,12 @@ just strings and nothing touches a timezone again.
 4. The action checks the password (`lib/gate.ts`), sets the signed cookie,
    redirects back to `/`.
 
-**Julia edits an Info section in `/admin`:**
+**Property owner edits an Info section in `/admin`:**
 
-1. `proxy.ts` → she has the site cookie → allowed.
+1. `proxy.ts` → they have the site cookie → allowed.
 2. `/admin/...` is served by Payload's catch-all `page.tsx`.
 3. The admin UI (Payload's browser code) calls `PATCH /api/sections/123`.
-4. That hits `api/[...slug]/route.ts` → Payload checks she's a logged-in admin →
+4. That hits `api/[...slug]/route.ts` → Payload checks they're a logged-in admin →
    runs the collection hooks → writes to Postgres.
 5. Next time a friend loads `/info`, the server component reads the updated row.
 

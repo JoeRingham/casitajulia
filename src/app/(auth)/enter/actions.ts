@@ -3,12 +3,20 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { getGeneral } from "@/lib/data";
 import {
   GATE_COOKIE,
   checkSitePassword,
   gateCookieOptions,
   issueGateToken,
 } from "@/lib/gate";
+
+async function wrongPasswordMessage(): Promise<string> {
+  const general = await getGeneral().catch(() => null);
+  const owner = general?.ownerNames?.trim();
+  const who = owner ? owner : "the owners";
+  return `That password isn't right. Try again, or ask ${who} for the latest password.`;
+}
 
 function safeNext(raw: FormDataEntryValue | null): string {
   const value = typeof raw === "string" ? raw : "";
@@ -28,7 +36,7 @@ export async function submitPassword(
   await new Promise((r) => setTimeout(r, 400));
 
   if (!checkSitePassword(password)) {
-    return { error: "That password isn't right. Try again, or ask Julia." };
+    return { error: await wrongPasswordMessage() };
   }
 
   const token = await issueGateToken();

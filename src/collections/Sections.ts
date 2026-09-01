@@ -4,8 +4,8 @@ import { anyone, authenticated } from "@/lib/access";
 
 /**
  * Free-form content blocks for the "Info" page — house rules, wifi, arrival
- * instructions, parking, bins, local tips, etc. Julia can add, remove, rename
- * and drag-to-reorder these herself.
+ * instructions, parking, bins, local tips, etc. An admin can add, remove, rename
+ * and drag-to-reorder these without code changes.
  */
 export const Sections: CollectionConfig = {
   slug: "sections",

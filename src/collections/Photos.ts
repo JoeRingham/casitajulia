@@ -3,8 +3,8 @@ import type { CollectionConfig } from "payload";
 import { anyone, authenticated } from "@/lib/access";
 
 /**
- * The villa photo gallery. `orderable: true` gives Julia drag-to-reorder in the
- * admin list view; the public gallery renders in that order.
+ * The villa photo gallery. `orderable: true` gives an admin drag-to-reorder in
+ * the list view; the public gallery renders in that order.
  */
 export const Photos: CollectionConfig = {
   slug: "photos",

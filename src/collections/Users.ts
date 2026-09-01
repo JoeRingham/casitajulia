@@ -3,9 +3,9 @@ import type { CollectionConfig } from "payload";
 import { authenticated } from "@/lib/access";
 
 /**
- * Admin accounts for Julia & Neal. In practice this is one shared login,
- * username `admin`, whose password Joe sets via the seed script (ADMIN_PASSWORD).
- * Login is by username — no email required.
+ * Admin accounts for the owners. In practice this is one shared login, username
+ * `admin`, whose password is set via the seed script (ADMIN_PASSWORD). Login is
+ * by username — no email required.
  */
 export const Users: CollectionConfig = {
   slug: "users",

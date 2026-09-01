@@ -4,7 +4,7 @@ import { jwtVerify, SignJWT } from "jose";
 
 /**
  * The shared-password gate that fronts the whole site. Deliberately simple: one
- * password (SITE_PASSWORD) that Julia hands out to friends, swapped for a
+ * password (SITE_PASSWORD) that the owners hand out to friends, swapped for a
  * signed, HTTP-only cookie.
  *
  * It is NOT the admin login — that's Payload's own auth on /admin.

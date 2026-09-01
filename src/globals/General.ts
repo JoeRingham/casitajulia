@@ -3,7 +3,7 @@ import type { GlobalConfig } from "payload";
 import { anyone, authenticated } from "@/lib/access";
 
 /**
- * Site-wide copy Julia can edit — home heading, intro, "how to book" text,
+ * Site-wide copy the owners can edit — home heading, intro, "how to book" text,
  * footer line. A Payload "global" is a single record, not a list.
  *
  * Slug `general` → the DB table is `general`, the admin shows it as "General",
@@ -17,6 +17,15 @@ export const General: GlobalConfig = {
     update: authenticated,
   },
   fields: [
+    {
+      name: "ownerNames",
+      type: "text",
+      label: "Owners' name(s)",
+      admin: {
+        description:
+          'Used in site help text — e.g. the sign-in page: "ask … for the latest password".',
+      },
+    },
     {
       name: "welcomeTitle",
       type: "text",
@@ -36,10 +45,10 @@ export const General: GlobalConfig = {
       type: "textarea",
       label: "How to book",
       defaultValue:
-        "To ask about dates, message Julia and/or Neal directly with the days you'd like. They'll check the calendar and confirm here once it's agreed.",
+        "To ask about dates, message the owners directly with the days you'd like. They'll check the calendar and confirm here once it's agreed.",
       admin: {
         description:
-          "Shown on the calendar page. No form — friends already know how to reach Julia and Neal.",
+          "Shown on the calendar page. No form — friends already know how to reach the owners.",
       },
     },
     {

@@ -1,11 +1,11 @@
 # Casita Julia
 
-A small, private website for the family house in Deià, Mallorca. Friends sign in
+A small, private website for a family house in Deià, Mallorca. Friends sign in
 with one shared password to see when the house is free and find everything they
-need for a stay. Julia and Neal manage dates and content from an admin panel.
+need for a stay. The owners manage dates and content from an admin panel.
 
 There is **no payment and no self-service booking** — booking stays as "message
-Julia and Neal, they confirm it here."
+the owners, they confirm it here."
 
 ## Stack
 
@@ -38,7 +38,7 @@ First run:
 | --- | --- |
 | `PAYLOAD_SECRET` | Long random string; signs admin sessions. |
 | `DATABASE_URI` | Postgres connection string. For Supabase use the **Session pooler** URI. |
-| `SITE_PASSWORD` | The shared password Julia gives to friends. |
+| `SITE_PASSWORD` | The shared password the owners give to friends. |
 | `GATE_SECRET` | Signs the friends-gate cookie. Defaults to `PAYLOAD_SECRET` if unset. |
 | `S3_BUCKET` etc. | Supabase Storage (S3) for uploads. Leave `S3_BUCKET` blank to use local disk in dev. |
 
@@ -97,6 +97,6 @@ Full walkthrough: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 | `npm run generate:types` | Rewrite `src/payload-types.ts` after changing collections. |
 | `npm run generate:importmap` | Rewrite the admin import map after adding custom admin components. |
 
-## For Julia & Neal
+## For the owners
 
 See [`docs/ADMIN-GUIDE.md`](docs/ADMIN-GUIDE.md).
