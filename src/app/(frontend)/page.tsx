@@ -1,18 +1,36 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { getPhotos, getGeneral } from "@/lib/data";
+import { getGeneral } from "@/lib/data";
 
 // Reads the (gated) database and changes only via the admin panel.
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
-  const [general, photos] = await Promise.all([
-    getGeneral().catch(() => null),
-    getPhotos().catch(() => []),
-  ]);
+const tiles = [
+  {
+    href: "/calendar",
+    title: "Calendar",
+    blurb: "See which dates are free.",
+  },
+  {
+    href: "/info",
+    title: "Stay Guide",
+    blurb: "Wifi, keys, arrival, house notes.",
+  },
+  {
+    href: "/villa",
+    title: "The Villa",
+    blurb: "A look around the house.",
+  },
+];
 
-  const hero = photos[0];
+export default async function HomePage() {
+  const general = await getGeneral().catch(() => null);
+
+  const hero =
+    general?.heroImage && typeof general.heroImage === "object"
+      ? general.heroImage
+      : null;
 
   return (
     <div className="space-y-10">
@@ -28,45 +46,29 @@ export default async function HomePage() {
       </section>
 
       {hero?.url ? (
-        <Link
-          href="/villa"
-          className="block overflow-hidden rounded-xl border border-border"
-        >
+        <div className="overflow-hidden rounded-xl border border-border">
           <Image
             src={hero.url}
-            alt={hero.caption || "Casita Julia"}
+            alt={hero.alt || general?.welcomeTitle || "Casita Julia"}
             width={hero.width || 1600}
             height={hero.height || 1000}
             className="h-auto w-full object-cover"
             priority
           />
-        </Link>
+        </div>
       ) : null}
 
       <section className="grid gap-4 sm:grid-cols-3">
-        <Link
-          href="/calendar"
-          className="rounded-xl border border-border bg-surface p-5 transition-colors hover:border-accent"
-        >
-          <h2 className="font-serif text-lg font-semibold">Calendar</h2>
-          <p className="mt-1 text-sm text-muted">See which dates are free.</p>
-        </Link>
-        <Link
-          href="/info"
-          className="rounded-xl border border-border bg-surface p-5 transition-colors hover:border-accent"
-        >
-          <h2 className="font-serif text-lg font-semibold">Info</h2>
-          <p className="mt-1 text-sm text-muted">
-            Wifi, keys, arrival, house notes.
-          </p>
-        </Link>
-        <Link
-          href="/villa"
-          className="rounded-xl border border-border bg-surface p-5 transition-colors hover:border-accent"
-        >
-          <h2 className="font-serif text-lg font-semibold">Photos</h2>
-          <p className="mt-1 text-sm text-muted">A look around the house.</p>
-        </Link>
+        {tiles.map((tile) => (
+          <Link
+            key={tile.href}
+            href={tile.href}
+            className="rounded-xl border border-border bg-surface p-5 transition-colors hover:border-accent"
+          >
+            <h2 className="font-serif text-lg font-semibold">{tile.title}</h2>
+            <p className="mt-1 text-sm text-muted">{tile.blurb}</p>
+          </Link>
+        ))}
       </section>
 
       {general?.howToBook ? (

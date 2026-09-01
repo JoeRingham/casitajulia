@@ -39,51 +39,72 @@ function para(text: string) {
   };
 }
 
-const STARTER_SECTIONS = [
+const STAY_GUIDE_SECTIONS = [
   {
-    title: "Arrival & keys",
+    heading: "Arrival & keys",
     body: "Add directions to the house, where to park, and how to get the keys (lockbox code, neighbour, etc.).",
   },
   {
-    title: "Wifi",
+    heading: "Wifi",
     body: "Network name and password go here.",
   },
   {
-    title: "House rules",
+    heading: "House rules",
     body: "The handful of things you'd like guests to know — no shoes upstairs, water is precious in summer, that sort of thing.",
   },
   {
-    title: "Bins & recycling",
+    heading: "Bins & recycling",
     body: "Which day, which bags, where they go.",
   },
   {
-    title: "Before you leave",
+    heading: "Before you leave",
     body: "Strip the beds, empty the fridge, close the shutters, lock up, and let the owners know you're away so the cleaner can come.",
   },
   {
-    title: "Local tips",
+    heading: "Local tips",
     body: "Favourite walks, the good bakery, where to swim, a restaurant or two.",
+  },
+];
+
+const VILLA_SECTIONS = [
+  {
+    heading: "The house",
+    body: "A short description of the villa — how many bedrooms, the layout, the view.",
+  },
+  {
+    heading: "The garden & terrace",
+    body: "The outdoor space — where to sit in the morning, the shade in the afternoon, the pool if there is one.",
+  },
+  {
+    heading: "Getting here",
+    body: "How to reach Deià — nearest airport, the drive, parking, whether a car is worth it.",
   },
 ];
 
 const payload = await getPayload({ config });
 
-const existing = await payload.count({ collection: "sections" });
-if (existing.totalDocs > 0) {
-  payload.logger.info(`Sections already present (${existing.totalDocs}) — skipping.`);
-} else {
-  for (const section of STARTER_SECTIONS) {
+async function seedPageContent(
+  collection: "stayGuideContent" | "villaContent",
+  rows: { heading: string; body: string }[],
+) {
+  const existing = await payload.count({ collection });
+  if (existing.totalDocs > 0) {
+    payload.logger.info(
+      `${collection}: ${existing.totalDocs} already present — skipping.`,
+    );
+    return;
+  }
+  for (const row of rows) {
     await payload.create({
-      collection: "sections",
-      data: {
-        title: section.title,
-        published: true,
-        body: para(section.body),
-      },
+      collection,
+      data: { heading: row.heading, published: true, body: para(row.body) },
     });
   }
-  payload.logger.info(`Created ${STARTER_SECTIONS.length} starter sections.`);
+  payload.logger.info(`${collection}: created ${rows.length} starter sections.`);
 }
+
+await seedPageContent("stayGuideContent", STAY_GUIDE_SECTIONS);
+await seedPageContent("villaContent", VILLA_SECTIONS);
 
 // Only fill in "General" fields that are still empty — never overwrite existing
 // edits on a re-run.

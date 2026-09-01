@@ -64,8 +64,8 @@ local-disk storage won't work there.
 | `src/proxy.ts` | Shared-password gate over the whole site (Next 16 "proxy"). |
 | `src/lib/gate.ts` | Signs / checks the friends cookie. |
 | `src/payload.config.ts` | Payload config: DB, storage, collections. |
-| `src/collections/*` | `users`, `media`, `photos`, `sections`, `bookings`, `blocks`. |
-| `src/globals/General.ts` | Editable site copy — the "General" panel in the admin. |
+| `src/collections/*` | `users`, `media`, `villaContent` + `stayGuideContent` (both from `makePageContentCollection`), `bookings`, `blocks`. |
+| `src/globals/General.ts` | Editable site copy + home-page photo — the "General" panel in the admin. |
 | `src/lib/availability.ts` | Turns bookings + blocks into "available / unavailable" days. |
 | `src/lib/calendar.ts` | Villa-day normalisation + month-grid maths. |
 | `src/app/(frontend)/*` | The friend-facing site. |

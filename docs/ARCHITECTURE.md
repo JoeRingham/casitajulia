@@ -110,8 +110,8 @@ boilerplate — thin files that hand control to the library, safe to ignore.
 | `layout.tsx`        | —           | Header + nav + footer; loads fonts; fetches the footer text from the DB |
 | `globals.css`       | —           | Tailwind + the (light-only) colour palette and rich-text styles     |
 | `page.tsx`          | `/`         | Home: intro, hero photo, "how to book"                              |
-| `villa/page.tsx`    | `/villa`    | Photo gallery                                                       |
-| `info/page.tsx`     | `/info`     | Renders the Info sections (Payload rich text → HTML)                |
+| `villa/page.tsx`    | `/villa`    | "The Villa" content page (`<PageContent>`)                          |
+| `info/page.tsx`     | `/info`     | "Stay Guide" content page (`<PageContent>`)                         |
 | `calendar/page.tsx` | `/calendar` | Two-month grid of available/unavailable                             |
 
 ### `src/app/(payload)/` — the admin panel _(Payload boilerplate — don't edit)_
@@ -130,14 +130,17 @@ boilerplate — thin files that hand control to the library, safe to ignore.
 Each file describes one database table and its edit form. This is the part
 you'll change most as the site grows.
 
-| File          | Table      | Notes                                                                                       |
-| ------------- | ---------- | ----------------------------------------------------------------------------------------- |
-| `Users.ts`    | `users`    | Admin logins. `loginWithUsername` → sign in with `admin`, no email. All operations locked to logged-in admins. |
-| `Sections.ts` | `sections` | Info-page blocks. `orderable: true` = drag-to-reorder. `body` is a `richText` field → the WYSIWYG editor. |
-| `Photos.ts`   | `photos`   | The villa gallery. An "upload" collection — Payload stores the file, adds `url`/`width`/… |
-| `Media.ts`    | `media`    | Images pasted _inside_ rich text (see §5)                                                 |
-| `Bookings.ts` | `bookings` | Guest name, dates, enquiry/confirmed, private notes. `access.read` is admin-only so guest names can't leak. A `beforeValidate` hook runs the conflict check before saving. |
-| `Blocks.ts`   | `blocks`   | Non-guest unavailable periods (family use, works). Shown to friends only as "unavailable". |
+| File                          | Table               | Notes                                                                                       |
+| ----------------------------- | ------------------- | ----------------------------------------------------------------------------------------- |
+| `Users.ts`                    | `users`             | Admin logins. `loginWithUsername` → sign in with `admin`, no email. All operations locked to logged-in admins. |
+| `VillaContent.ts` / `StayGuideContent.ts` | `villa_content` / `stay_guide_content` | The two content pages (`/villa`, `/info`). Both are one call to `makePageContentCollection` — an orderable list of sections, each `heading` + `body` (rich text) + `images` (array of media + caption). |
+| `Media.ts`                    | `media`             | The one shared image library. An "upload" collection — Payload stores the file, adds `url`/`width`/…. Referenced by section images, the home hero, and rich-text embeds. |
+| `Bookings.ts`                 | `bookings`          | Guest name, dates, enquiry/confirmed, private notes. `access.read` is admin-only so guest names can't leak. A `beforeValidate` hook runs the conflict check before saving. |
+| `Blocks.ts`                   | `blocks`            | Non-guest unavailable periods (family use, works). Shown to friends only as "unavailable". |
+
+`makePageContentCollection.ts` is the shared factory for the two content pages —
+same pattern as `fields/villaDate.ts`. The two wrapper files just set the slug
+and the sidebar labels ("The Villa" / "Stay Guide").
 
 Two Payload terms:
 
@@ -148,11 +151,12 @@ Two Payload terms:
   each collection. Each is a function returning `true`/`false`. This is Payload's
   permission system, enforced on the REST/GraphQL API.
 
-### `src/globals/General.ts` — site-wide editable text _(custom)_
+### `src/globals/General.ts` — site-wide editable bits _(custom)_
 
-A Payload "global" is a single record, not a list: the home heading, intro, "how
-to book" text, footer line. The slug is `general` — that names the DB table, is
-read in code as `findGlobal({ slug: "general" })`, and shows in the admin as the
+A Payload "global" is a single record, not a list: owner name(s), the home
+heading / intro, the home-page hero image (a `media` pick), the "how to book"
+text, the footer line. The slug is `general` — that names the DB table, is read
+in code as `findGlobal({ slug: "general" })`, and shows in the admin as the
 **"General"** panel.
 
 ### `src/lib/` — our shared logic _(all custom, no Payload)_
@@ -163,7 +167,7 @@ read in code as `findGlobal({ slug: "general" })`, and shows in the admin as the
 | `access.ts`       | Two helpers (`authenticated`, `anyone`) reused across collections so the rules read consistently.               |
 | `availability.ts` | The booking maths: bookings + blocks → `day → "available" \| "unavailable"`. Plus `assertNoConflict()`. See §7. |
 | `calendar.ts`     | Villa-day normalisation + pure month-grid arithmetic. See §7.                                                   |
-| `data.ts`         | Server-side fetch helpers (`getGeneral`, `getSections`, `getPhotos`, `getPublicAvailability`) — these call Payload's Local API. |
+| `data.ts`         | Server-side fetch helpers (`getGeneral`, `getVillaContent`, `getStayGuideContent`, `getPublicAvailability`) — these call Payload's Local API. |
 
 ### `src/fields/villaDate.ts` — a reusable field _(custom)_
 
@@ -171,43 +175,43 @@ Bookings and Blocks each have two date fields with identical config (day-only
 picker + the villa-day normalisation hook). This factory builds one, defined
 once.
 
-### `src/components/MonthCalendar.tsx` — _(custom)_
+### `src/components/` — _(custom)_
 
-The React component that draws one month grid on the public `/calendar` page.
-Purely presentational — it's handed a precomputed free/busy map with names
-already stripped, and paints cells.
+- `MonthCalendar.tsx` — draws one month grid on `/calendar`. Purely
+  presentational; handed a precomputed free/busy map with names already
+  stripped.
+- `PageContent.tsx` — renders a content page (`/villa` or `/info`): the list of
+  sections with heading, rich text, and image grid. Also presentational.
 
 ### `src/seed/index.ts` — _(custom)_
 
-`npm run seed` — fills a fresh database with starter Info sections and creates
-the `admin` login. Idempotent: safe to re-run, never overwrites edited content
-or a changed password. (An explicit `ADMIN_RESET_PASSWORD=true` is the only way
-it will reset the password.)
+`npm run seed` — fills a fresh database with starter sections for both content
+pages and creates the `admin` login. Idempotent: safe to re-run, never
+overwrites edited content or a changed password. (An explicit
+`ADMIN_RESET_PASSWORD=true` is the only way it will reset the password.)
 
 ### `src/payload-types.ts` — _(generated)_
 
 `npm run generate:types` writes this from your collections. It's why
-`general.welcomeIntro` and `photo.url` are type-checked. **Never edit by
+`general.welcomeIntro` and `section.images` are type-checked. **Never edit by
 hand** — re-generate after changing a collection.
 
 ---
 
 ## 5. The data model, and how data moves
 
-### `media` vs `photos`
+### Content pages and the image library
 
-Both are Payload "upload" collections — they store image files — but they're
-different jobs:
+The two friend-facing content pages — **The Villa** (`/villa`) and **Stay
+Guide** (`/info`) — are the same shape: an ordered list of sections, each with a
+heading, some rich text, and an optional grid of captioned images. They're two
+collections built from one factory (`makePageContentCollection`), so the admin
+shows them as two separate sidebar entries while the code stays DRY.
 
-- **`photos`** is the **villa gallery**: an ordered set (drag-to-reorder), each
-  with a caption, shown on `/villa` and as the home-page hero. The owners curate
-  these as a collection.
-- **`media`** is for images dropped **inside the rich text of an Info section**
-  — a photo of the fuse box, a hand-drawn parking map. Clicking "add image" in
-  the section editor uploads here. Not ordered, never shown as a gallery.
-
-They're kept separate so inline screenshots don't pollute the gallery. If no
-images are ever embedded in Info text, `media` simply stays empty and harmless.
+Every image lives in **one** `media` collection. A section's `images` field is a
+list of `{ image → media, caption }`; the home-page hero is `general.heroImage →
+media`; rich-text embeds also upload to `media`. So the same photo can be
+referenced from both pages without duplication.
 
 ### Two ways to read Payload data
 
@@ -311,7 +315,7 @@ just strings and nothing touches a timezone again.
 
 1. `proxy.ts` → they have the site cookie → allowed.
 2. `/admin/...` is served by Payload's catch-all `page.tsx`.
-3. The admin UI (Payload's browser code) calls `PATCH /api/sections/123`.
+3. The admin UI (Payload's browser code) calls `PATCH /api/stayGuideContent/123`.
 4. That hits `api/[...slug]/route.ts` → Payload checks they're a logged-in admin →
    runs the collection hooks → writes to Postgres.
 5. Next time a friend loads `/info`, the server component reads the updated row.
@@ -354,7 +358,9 @@ Supabase, separately. A redeploy never runs the seed script.
 
 **Add a public page** — create `src/app/(frontend)/whatever/page.tsx`. Add it to
 the `navLinks` array in `src/app/(frontend)/layout.tsx` if it should appear in
-the nav.
+the nav. For another editable content page, add one more
+`makePageContentCollection(...)` wrapper, a `getXContent()` helper in
+`lib/data.ts`, and a page that renders `<PageContent>`.
 
 **Change the colours** — edit the CSS variables in
 `src/app/(frontend)/globals.css`. It's light-only by design; the palette lives in
@@ -379,5 +385,6 @@ database.
 - The cleaner turnaround rule and cleaner notifications.
 - iCal feed, CSV export, per-guest stay pages, email notifications.
 - Restricting wifi/lockbox details to confirmed guests near their stay.
-- Photo upload has only been exercised against local-disk storage, not a real
-  Supabase Storage bucket.
+- Image upload has been exercised end-to-end locally (local-disk storage), not
+  yet against a real Supabase Storage bucket.
+- No lightbox on the section image grids — images aren't clickable.

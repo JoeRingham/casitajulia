@@ -69,8 +69,8 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
-    photos: Photo;
-    sections: Section;
+    villaContent: VillaContent;
+    stayGuideContent: StayGuideContent;
     bookings: Booking;
     blocks: Block;
     'payload-kv': PayloadKv;
@@ -82,8 +82,8 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
-    photos: PhotosSelect<false> | PhotosSelect<true>;
-    sections: SectionsSelect<false> | SectionsSelect<true>;
+    villaContent: VillaContentSelect<false> | VillaContentSelect<true>;
+    stayGuideContent: StayGuideContentSelect<false> | StayGuideContentSelect<true>;
     bookings: BookingsSelect<false> | BookingsSelect<true>;
     blocks: BlocksSelect<false> | BlocksSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -164,7 +164,7 @@ export interface User {
 export interface Media {
   id: number;
   /**
-   * Describe the image for screen readers.
+   * Describe the image for screen readers. A section's own caption is used instead where one is set.
    */
   alt?: string | null;
   updatedAt: string;
@@ -187,42 +187,7 @@ export interface Media {
       filesize?: number | null;
       filename?: string | null;
     };
-    large?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
-}
-/**
- * Drag rows to change the order photos appear on the site.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "photos".
- */
-export interface Photo {
-  id: number;
-  _order?: string | null;
-  /**
-   * Shown under the photo. Also used as alt text.
-   */
-  caption?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    thumbnail?: {
+    card?: {
       url?: string | null;
       width?: number | null;
       height?: number | null;
@@ -241,15 +206,15 @@ export interface Photo {
   };
 }
 /**
- * Each block becomes a titled section on the Info page. Drag rows to reorder.
+ * Sections of the “The Villa” page — the house, the garden, getting here. Drag rows to reorder.
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "sections".
+ * via the `definition` "villaContent".
  */
-export interface Section {
+export interface VillaContent {
   id: number;
   _order?: string | null;
-  title: string;
+  heading: string;
   body?: {
     root: {
       type: string;
@@ -265,6 +230,58 @@ export interface Section {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Shown as a grid under the text. Drag to reorder.
+   */
+  images?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Uncheck to hide this section without deleting it.
+   */
+  published?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Sections of the “Stay Guide” page — wifi, keys, arrival, house rules, bins, local tips. Drag rows to reorder.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stayGuideContent".
+ */
+export interface StayGuideContent {
+  id: number;
+  _order?: string | null;
+  heading: string;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Shown as a grid under the text. Drag to reorder.
+   */
+  images?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Uncheck to hide this section without deleting it.
    */
@@ -340,12 +357,12 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
-        relationTo: 'photos';
-        value: number | Photo;
+        relationTo: 'villaContent';
+        value: number | VillaContent;
       } | null)
     | ({
-        relationTo: 'sections';
-        value: number | Section;
+        relationTo: 'stayGuideContent';
+        value: number | StayGuideContent;
       } | null)
     | ({
         relationTo: 'bookings';
@@ -451,40 +468,7 @@ export interface MediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
-        large?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-      };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "photos_select".
- */
-export interface PhotosSelect<T extends boolean = true> {
-  _order?: T;
-  caption?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
-  sizes?:
-    | T
-    | {
-        thumbnail?:
+        card?:
           | T
           | {
               url?: T;
@@ -508,12 +492,38 @@ export interface PhotosSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "sections_select".
+ * via the `definition` "villaContent_select".
  */
-export interface SectionsSelect<T extends boolean = true> {
+export interface VillaContentSelect<T extends boolean = true> {
   _order?: T;
-  title?: T;
+  heading?: T;
   body?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  published?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stayGuideContent_select".
+ */
+export interface StayGuideContentSelect<T extends boolean = true> {
+  _order?: T;
+  heading?: T;
+  body?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
   published?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -598,6 +608,10 @@ export interface General {
    */
   welcomeIntro?: string | null;
   /**
+   * Large image near the top of the home page. Optional.
+   */
+  heroImage?: (number | null) | Media;
+  /**
    * Shown on the calendar page. No form — friends already know how to reach the owners.
    */
   howToBook?: string | null;
@@ -613,6 +627,7 @@ export interface GeneralSelect<T extends boolean = true> {
   ownerNames?: T;
   welcomeTitle?: T;
   welcomeIntro?: T;
+  heroImage?: T;
   howToBook?: T;
   footerNote?: T;
   updatedAt?: T;

@@ -3,8 +3,9 @@ import type { CollectionConfig } from "payload";
 import { anyone, authenticated } from "@/lib/access";
 
 /**
- * Images embedded inside rich-text "Info" sections. Villa gallery photos live
- * in their own `photos` collection so they can be reordered independently.
+ * The single shared image library. Every picture on the site — hero image,
+ * images inside a "The Villa" / "Stay Guide" section, images pasted into rich
+ * text — is uploaded here once and referenced from wherever it's used.
  */
 export const Media: CollectionConfig = {
   slug: "media",
@@ -20,7 +21,8 @@ export const Media: CollectionConfig = {
     focalPoint: false,
     imageSizes: [
       { name: "thumbnail", width: 400 },
-      { name: "large", width: 1600 },
+      { name: "card", width: 900 },
+      { name: "full", width: 2000 },
     ],
   },
   fields: [
@@ -28,7 +30,10 @@ export const Media: CollectionConfig = {
       name: "alt",
       type: "text",
       label: "Alt text",
-      admin: { description: "Describe the image for screen readers." },
+      admin: {
+        description:
+          "Describe the image for screen readers. A section's own caption is used instead where one is set.",
+      },
     },
   ],
 };

@@ -10,9 +10,9 @@ import sharp from "sharp";
 import { Blocks } from "@/collections/Blocks";
 import { Bookings } from "@/collections/Bookings";
 import { Media } from "@/collections/Media";
-import { Photos } from "@/collections/Photos";
-import { Sections } from "@/collections/Sections";
+import { StayGuideContent } from "@/collections/StayGuideContent";
 import { Users } from "@/collections/Users";
+import { VillaContent } from "@/collections/VillaContent";
 import { General } from "@/globals/General";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -27,7 +27,14 @@ export default buildConfig({
     },
     components: {},
   },
-  collections: [Users, Media, Photos, Sections, Bookings, Blocks],
+  collections: [
+    Users,
+    Media,
+    VillaContent,
+    StayGuideContent,
+    Bookings,
+    Blocks,
+  ],
   globals: [General],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
@@ -46,7 +53,6 @@ export default buildConfig({
           s3Storage({
             collections: {
               media: { prefix: "media" },
-              photos: { prefix: "photos" },
             },
             bucket: process.env.S3_BUCKET as string,
             config: {

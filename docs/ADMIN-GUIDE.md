@@ -34,33 +34,42 @@ To change or cancel a stay, open it from the Bookings list and edit or delete it
 - **From / Until** — both days are included, so "From the 20th until the 27th"
   blocks all eight days.
 
-## Editing the Info page (wifi, keys, rules…)
+## Editing the two content pages
 
-**Content → Sections**
+There are two, and they work identically:
 
-Each row is one titled block on the Info page. You can:
+- **Content → Stay Guide** — the practical page (`/info`): wifi, keys, arrival,
+  house rules, bins, local tips.
+- **Content → The Villa** — the about-the-house page (`/villa`): the house, the
+  garden, getting here.
 
-- **Edit** — click a row, change the title or text, Save.
-- **Add** — "Create new", give it a title and text, Save.
+Each row is one **section** on that page. You can:
+
+- **Edit** — click a row, change the heading or text, Save.
+- **Add** — "Create new", give it a heading and text, Save.
 - **Reorder** — drag the rows up and down in the list.
 - **Hide without deleting** — open the section and untick "Show on site".
 
 The text box is a normal editor — headings, bold, lists, links all work.
 
-## Photos
+### Adding photos to a section
 
-**Content → Photos**
+Inside a section there's an **Images** list. For each image: pick or upload a
+photo, and optionally add a caption. They show as a grid under the section's
+text, in the order you arrange them. Drag to reorder.
 
-- "Create new", choose an image, add a short caption (also used for screen
-  readers), Save.
-- Drag rows to set the order they appear on the site.
-- The first photo is used as the big image on the home page.
+## Photos library
 
-## Home page wording / "How to book" text
+**Content → Media** is where every image lives. You can upload here directly, or
+upload while adding an image to a section — either way it lands in the same
+library and the same photo can be reused on both pages.
+
+## Home page wording, photo, and "How to book" text
 
 **Content → General**
 
 - **Home page heading / introduction** — the top of the landing page.
+- **Home page photo** — the large image near the top of the home page. Optional.
 - **How to book** — the note on the calendar page telling friends to message you.
 - **Footer line** — the small text at the bottom of every page.
 

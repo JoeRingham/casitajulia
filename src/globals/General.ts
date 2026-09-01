@@ -41,6 +41,15 @@ export const General: GlobalConfig = {
       },
     },
     {
+      name: "heroImage",
+      type: "upload",
+      relationTo: "media",
+      label: "Home page photo",
+      admin: {
+        description: "Large image near the top of the home page. Optional.",
+      },
+    },
+    {
       name: "howToBook",
       type: "textarea",
       label: "How to book",

@@ -1,36 +1,24 @@
 import type { Metadata } from "next";
-import { RichText } from "@payloadcms/richtext-lexical/react";
 
-import { getSections } from "@/lib/data";
+import { PageContent } from "@/components/PageContent";
+import { getStayGuideContent } from "@/lib/data";
 
-export const metadata: Metadata = { title: "Info" };
+export const metadata: Metadata = { title: "Stay Guide" };
 export const dynamic = "force-dynamic";
 
-export default async function InfoPage() {
-  const sections = await getSections().catch(() => []);
+export default async function StayGuidePage() {
+  const sections = await getStayGuideContent().catch(() => []);
 
   return (
     <div className="space-y-8">
-      <h1 className="font-serif text-3xl font-semibold tracking-tight">Info</h1>
+      <h1 className="font-serif text-3xl font-semibold tracking-tight">
+        Stay Guide
+      </h1>
 
       {sections.length === 0 ? (
-        <p className="text-muted">
-          Details for your stay will appear here soon.
-        </p>
+        <p className="text-muted">Details for your stay will appear here soon.</p>
       ) : (
-        sections.map((section) => (
-          <section
-            key={section.id}
-            className="rounded-xl border border-border bg-surface p-6"
-          >
-            <h2 className="font-serif text-xl font-semibold">{section.title}</h2>
-            {section.body ? (
-              <div className="prose-cj mt-2 text-[0.975rem]">
-                <RichText data={section.body} />
-              </div>
-            ) : null}
-          </section>
-        ))
+        <PageContent sections={sections} />
       )}
     </div>
   );

@@ -18,27 +18,26 @@ export async function getGeneral() {
   return payload.findGlobal({ slug: "general" });
 }
 
-export async function getSections() {
+async function getPageContent(
+  collection: "villaContent" | "stayGuideContent",
+) {
   const payload = await getClient();
   const res = await payload.find({
-    collection: "sections",
+    collection,
     where: { published: { equals: true } },
     sort: "_order",
     limit: 100,
-    depth: 1,
+    depth: 1, // populate images[].image -> media
   });
   return res.docs;
 }
 
-export async function getPhotos() {
-  const payload = await getClient();
-  const res = await payload.find({
-    collection: "photos",
-    sort: "_order",
-    limit: 200,
-    depth: 0,
-  });
-  return res.docs;
+export function getVillaContent() {
+  return getPageContent("villaContent");
+}
+
+export function getStayGuideContent() {
+  return getPageContent("stayGuideContent");
 }
 
 /**
