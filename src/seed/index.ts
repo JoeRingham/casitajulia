@@ -95,4 +95,38 @@ await payload.updateGlobal({
 });
 payload.logger.info("Settings initialised.");
 
+// ── Admin login ──────────────────────────────────────────────────────────────
+// One shared account, username `admin` by default. Password comes from the
+// environment. Re-running this script resets the password to ADMIN_PASSWORD,
+// which is the supported way to change it from the command line.
+const adminUsername = process.env.ADMIN_USERNAME || "admin";
+const adminPassword = process.env.ADMIN_PASSWORD;
+
+if (!adminPassword) {
+  payload.logger.warn(
+    "ADMIN_PASSWORD not set — skipping admin user. Set it in .env and re-run `npm run seed`.",
+  );
+} else {
+  const existing = await payload.find({
+    collection: "users",
+    where: { username: { equals: adminUsername } },
+    limit: 1,
+  });
+
+  if (existing.docs.length > 0) {
+    await payload.update({
+      collection: "users",
+      id: existing.docs[0].id,
+      data: { password: adminPassword },
+    });
+    payload.logger.info(`Admin user "${adminUsername}" password reset.`);
+  } else {
+    await payload.create({
+      collection: "users",
+      data: { username: adminUsername, password: adminPassword, name: "Admin" },
+    });
+    payload.logger.info(`Admin user "${adminUsername}" created.`);
+  }
+}
+
 process.exit(0);
