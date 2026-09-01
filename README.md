@@ -20,15 +20,16 @@ Prereqs: Node 20.9+ and a Postgres database (local, or a Supabase project).
 
 ```bash
 npm install
-cp .env.example .env      # then fill in the values
-npm run seed              # optional: starter Info sections + settings
+cp .env.example .env      # then fill in the values (incl. ADMIN_PASSWORD)
+npm run seed              # starter content + creates the admin login
 npm run dev               # http://localhost:3000
 ```
 
 First run:
 
 1. Open the site → you'll be sent to `/enter`. Type `SITE_PASSWORD`.
-2. Go to `/admin` → create the first admin user (this is Julia & Neal's login).
+2. Go to `/admin` → log in with `ADMIN_USERNAME` / `ADMIN_PASSWORD`.
+   Re-run `npm run seed` to reset the password.
 
 ### Environment variables
 
@@ -48,7 +49,9 @@ See `.env.example` for the full list and formats.
 2. Import it in Vercel. Framework preset: **Next.js**. No build-command changes.
 3. Add all the env vars from `.env.example` (Production + Preview).
 4. Add the domain `casitajulia.com`.
-5. Deploy, then visit `/admin` to create the first user.
+5. Deploy. Run the seed once against the production DB (locally, with the
+   production `DATABASE_URI` + `ADMIN_PASSWORD` in your shell) to create the
+   admin login, then sign in at `/admin`.
 
 Uploads need `S3_*` set in production — Vercel's filesystem is read-only, so
 local-disk storage won't work there.

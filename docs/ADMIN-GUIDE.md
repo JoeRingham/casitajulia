@@ -3,7 +3,7 @@
 Everything is managed from the admin panel: **casitajulia.com/admin**
 
 You'll be asked for the site password first (the same one you give friends),
-then your own admin email and password.
+then the admin username and password (Joe sets these up).
 
 ---
 
@@ -68,7 +68,8 @@ The text box is a normal editor — headings, bold, lists, links all work.
 
 - **The friends password** (the one you hand out): Joe changes this — it lives in
   the site's settings, not the admin panel.
-- **Your admin password**: click your email, top-right of the admin panel.
+- **The admin password**: Joe sets it (re-running the seed script). You can also
+  change it from the account menu, top-right of the admin panel.
 
 ## Adding another admin (e.g. so Julia and Neal each have a login)
 
