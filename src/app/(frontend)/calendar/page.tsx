@@ -11,7 +11,7 @@ import {
   monthLabel,
   monthParam,
   parseMonthParam,
-} from "@/lib/month";
+} from "@/lib/calendar";
 
 export const metadata: Metadata = { title: "Calendar" };
 export const dynamic = "force-dynamic";

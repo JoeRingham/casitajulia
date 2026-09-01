@@ -1,10 +1,11 @@
 @import "tailwindcss";
 
 /*
- * Casita Julia — warm, quiet palette. Light by default; a dark variant follows
- * the visitor's system setting.
+ * Casita Julia — one warm, quiet light palette, used everywhere regardless of
+ * the visitor's device setting. (Deliberately light-only: see docs/ARCHITECTURE.md.)
  */
 :root {
+  color-scheme: light;
   --background: #faf6ef;
   --surface: #ffffff;
   --foreground: #2b2620;
@@ -12,18 +13,6 @@
   --border: #e6ddcd;
   --accent: #7c6f4e;
   --accent-contrast: #ffffff;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1a1713;
-    --surface: #221e19;
-    --foreground: #ece5d8;
-    --muted: #a99f8d;
-    --border: #383128;
-    --accent: #c8b789;
-    --accent-contrast: #221e19;
-  }
 }
 
 @theme inline {

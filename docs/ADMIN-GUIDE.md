@@ -58,7 +58,7 @@ The text box is a normal editor — headings, bold, lists, links all work.
 
 ## Home page wording / "How to book" text
 
-**Content → Settings**
+**Content → General**
 
 - **Home page heading / introduction** — the top of the landing page.
 - **How to book** — the note on the calendar page telling friends to message you.

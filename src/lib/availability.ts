@@ -1,6 +1,6 @@
 import { APIError, type Payload } from "payload";
 
-import { villaDayString } from "@/lib/dates";
+import { villaDayString } from "@/lib/calendar";
 
 /**
  * Availability model

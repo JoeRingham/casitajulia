@@ -1,6 +1,6 @@
 import type { DateField } from "payload";
 
-import { snapToVillaMidnightUTC } from "@/lib/dates";
+import { snapToVillaMidnightUTC } from "@/lib/calendar";
 
 /**
  * A day-only date field that always stores UTC-midnight of the chosen villa-local

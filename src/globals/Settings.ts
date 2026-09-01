@@ -5,9 +5,13 @@ import { anyone, authenticated } from "@/lib/access";
 /**
  * Site-wide copy Julia can edit. Deliberately a handful of plain fields rather
  * than anything clever.
+ *
+ * The `slug` stays "settings" (it names the DB table and is used in code as
+ * findGlobal({ slug: "settings" })). Only the admin-facing label is "General".
  */
 export const Settings: GlobalConfig = {
   slug: "settings",
+  label: "General",
   admin: { group: "Content" },
   access: {
     read: anyone,

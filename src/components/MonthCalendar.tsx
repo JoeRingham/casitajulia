@@ -1,5 +1,24 @@
 import type { DayState } from "@/lib/availability";
-import { monthGrid, monthLabel, WEEKDAY_LABELS, type YearMonth } from "@/lib/month";
+import {
+  monthGrid,
+  monthLabel,
+  WEEKDAY_LABELS,
+  type YearMonth,
+} from "@/lib/calendar";
+
+/**
+ * The friend-facing month grid on /calendar.
+ *
+ * Purely presentational: it's handed a `YearMonth` and a precomputed
+ * `day -> "available" | "unavailable"` map (built server-side in
+ * lib/data.ts + lib/availability.ts, with all guest names already stripped out)
+ * and just paints the cells. Past days are greyed and unclickable; unavailable
+ * days are struck through. Two of these render side by side, plus
+ * <CalendarLegend/>. It holds no state and does no data fetching.
+ *
+ * The admin calendar (which shows who is staying) will be a separate component —
+ * this one must never receive guest data.
+ */
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
