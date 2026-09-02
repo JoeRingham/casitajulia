@@ -22,7 +22,7 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: "username",
     defaultColumns: ["username", "name"],
-    group: "Admin",
+    group: false,
   },
   access: {
     read: authenticated,

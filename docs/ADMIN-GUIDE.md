@@ -18,7 +18,8 @@ any bar to open that entry.
 - **Type** — one of:
   - *Guest stay* — a friend staying. Adds a **Guest name** field.
   - *Our stay* — the family using it. (This is the default.)
-  - *Block* — maintenance, a closed season, anything else.
+  - *Block* — maintenance, a closed season, anything else. Adds a **Reason**
+    field, and the date fields are labelled **Block start / Block end**.
 - **Check-in / Check-out** — like a hotel. The nights from check-in up to (not
   including) check-out are unavailable; the check-out day is free again.
   - To leave a night free for the cleaner after a stay, just set check-out to

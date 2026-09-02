@@ -9,7 +9,12 @@ import { snapToVillaMidnightUTC } from "@/lib/calendar";
 export function villaDate(
   name: string,
   label: string,
-  opts: { width?: string; description?: string } = {},
+  opts: {
+    width?: string;
+    description?: string;
+    fieldComponent?: string;
+    clientProps?: Record<string, unknown>;
+  } = {},
 ): DateField {
   return {
     name,
@@ -20,6 +25,16 @@ export function villaDate(
       width: opts.width,
       description: opts.description,
       date: { pickerAppearance: "dayOnly", displayFormat: "d MMM yyyy" },
+      ...(opts.fieldComponent
+        ? {
+            components: {
+              Field: {
+                path: opts.fieldComponent,
+                clientProps: opts.clientProps,
+              },
+            },
+          }
+        : {}),
     },
     hooks: {
       // Runs before the collection's beforeValidate, so conflict checks see the

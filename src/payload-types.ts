@@ -295,10 +295,11 @@ export interface Booking {
   id: number;
   type: 'guest' | 'owner' | 'block';
   guestName?: string | null;
-  start: string;
   /**
-   * The morning you leave — that night is free again. To block a whole calendar day, set check-in to the day before and check-out to the day after.
+   * e.g. “Kitchen works”, “Closed for winter”.
    */
+  reason?: string | null;
+  start: string;
   end: string;
   /**
    * Optional. Only ever visible here in the admin.
@@ -515,6 +516,7 @@ export interface StayGuideContentSelect<T extends boolean = true> {
 export interface BookingsSelect<T extends boolean = true> {
   type?: T;
   guestName?: T;
+  reason?: T;
   start?: T;
   end?: T;
   note?: T;

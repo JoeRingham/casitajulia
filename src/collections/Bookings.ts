@@ -23,10 +23,12 @@ const TYPE_LABELS: Record<string, string> = {
 
 function entryTitle(data: Record<string, unknown> | undefined | null): string {
   const type = (data?.type as string) ?? "owner";
-  const note = (data?.note as string) ?? "";
   if (type === "guest") return (data?.guestName as string) || "Guest stay";
-  return note || TYPE_LABELS[type] || "Entry";
+  if (type === "block") return (data?.reason as string) || "Block";
+  return (data?.note as string) || "Our stay";
 }
+
+const DATE_FIELD = "/components/admin/EntryDateField#EntryDateField";
 
 export const Bookings: CollectionConfig = {
   slug: "bookings",
@@ -34,7 +36,8 @@ export const Bookings: CollectionConfig = {
   admin: {
     useAsTitle: "title",
     defaultColumns: ["title", "type", "start", "end"],
-    listSearchableFields: ["guestName", "note"],
+    listSearchableFields: ["guestName", "reason", "note"],
+    group: false,
     components: {
       beforeListTable: ["/components/admin/AdminCalendar#AdminCalendar"],
     },
@@ -56,7 +59,6 @@ export const Bookings: CollectionConfig = {
         { label: "Our stay", value: "owner" },
         { label: "Block (maintenance, closed season…)", value: "block" },
       ],
-      admin: { position: "sidebar" },
     },
     {
       name: "guestName",
@@ -65,13 +67,26 @@ export const Bookings: CollectionConfig = {
       admin: { condition: (data) => data?.type === "guest" },
     },
     {
+      name: "reason",
+      type: "text",
+      label: "Reason",
+      admin: {
+        condition: (data) => data?.type === "block",
+        description: "e.g. “Kitchen works”, “Closed for winter”.",
+      },
+    },
+    {
       type: "row",
       fields: [
-        villaDate("start", "Check-in", { width: "50%" }),
+        villaDate("start", "Check-in", {
+          width: "50%",
+          fieldComponent: DATE_FIELD,
+          clientProps: { endpoint: "start" },
+        }),
         villaDate("end", "Check-out", {
           width: "50%",
-          description:
-            "The morning you leave — that night is free again. To block a whole calendar day, set check-in to the day before and check-out to the day after.",
+          fieldComponent: DATE_FIELD,
+          clientProps: { endpoint: "end" },
         }),
       ],
     },
@@ -99,6 +114,14 @@ export const Bookings: CollectionConfig = {
         if (merged?.type === "guest" && !merged?.guestName) {
           throw new APIError(
             "Guest name is required for a guest stay.",
+            400,
+            undefined,
+            true,
+          );
+        }
+        if (merged?.type === "block" && !merged?.reason) {
+          throw new APIError(
+            "A reason is required for a block.",
             400,
             undefined,
             true,
@@ -134,3 +157,5 @@ export const Bookings: CollectionConfig = {
     ],
   },
 };
+
+export { TYPE_LABELS };

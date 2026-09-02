@@ -9,7 +9,7 @@ import { anyone, authenticated } from "@/lib/access";
  */
 export const Media: CollectionConfig = {
   slug: "media",
-  admin: { group: "Content" },
+  admin: { group: false },
   access: {
     read: anyone,
     create: authenticated,

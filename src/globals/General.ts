@@ -11,7 +11,7 @@ import { anyone, authenticated } from "@/lib/access";
  */
 export const General: GlobalConfig = {
   slug: "general",
-  admin: { group: "Content" },
+  admin: { group: false },
   access: {
     read: anyone,
     update: authenticated,

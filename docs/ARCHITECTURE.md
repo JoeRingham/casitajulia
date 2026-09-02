@@ -135,7 +135,7 @@ you'll change most as the site grows.
 | `Users.ts`                    | `users`             | Admin logins. `loginWithUsername` → sign in with `admin`, no email. All operations locked to logged-in admins. |
 | `VillaContent.ts` / `StayGuideContent.ts` | `villa_content` / `stay_guide_content` | The two content pages (`/villa`, `/info`). Both are one call to `makePageContentCollection` — an orderable list of sections, each `heading` + `body` (rich text) + `images` (array of media + caption). |
 | `Media.ts`                    | `media`             | The one shared image library. An "upload" collection — Payload stores the file, adds `url`/`width`/…. Referenced by section images, the home hero, and rich-text embeds. |
-| `Bookings.ts`                 | `bookings`          | **Everything on the calendar** — a `type` of `guest` / `owner` / `block`, check-in / check-out dates, optional `note`, plus a hidden `title` (hook-populated for the list). One shape for all three; `type` only toggles the guest-name field and the chip colour. Admin-only for every operation. `beforeValidate` hook: guest-name required for guest stays, check-out after check-in, and no overlap with any other entry. Its `beforeListTable` renders the admin month calendar. |
+| `Bookings.ts`                 | `bookings`          | **Everything on the calendar** — a `type` of `guest` / `owner` / `block`. Conditional fields: `guestName` (guest), `reason` (block); always: `start` / `end` (half-open nights), optional `note`, hidden hook-populated `title`. Admin-only. `beforeValidate`: required guest-name / reason per type, end after start, no overlap with any other entry. Its `beforeListTable` renders the admin month calendar. |
 
 `makePageContentCollection.ts` is the shared factory for the two content pages —
 same pattern as `fields/villaDate.ts`. The two wrapper files just set the slug
@@ -181,14 +181,23 @@ villa-day normalisation hook). This factory builds one, defined once.
   stripped.
 - `PageContent.tsx` — renders a content page (`/villa` or `/info`): the list of
   sections with heading, rich text, and image grid. Also presentational.
-- `admin/AdminCalendar.tsx` (client) — the month grid shown on the **Bookings
-  list page**. Fetches `/api/bookings`, draws a chip per entry across its
-  occupied nights (guest = green, our-stay = blue, block = amber), each linking
-  to its edit page; Prev / Today / Next nav. Wired as
-  `admin.components.beforeListTable` on the `bookings` collection.
-  `payload.config.ts` sets `admin.importMap.baseDir` to `src/` so the
-  `/components/...#Export` path resolves; re-run `npm run generate:importmap`
-  after adding admin components.
+- `admin/AdminNav.tsx` (client) — the **entire admin sidebar**, in the order we
+  want it (Bookings, then Content = General / The Villa / Stay Guide / Media,
+  then Admin = Users). Rendered via `admin.components.beforeNavLinks`; every
+  collection/global sets `admin.group: false` so Payload's auto-nav stays empty.
+- `admin/AdminCalendar.tsx` (client) — the month grid on the **Bookings list
+  page** (`admin.components.beforeListTable`). Fetches `/api/bookings`; a chip
+  per entry across its occupied nights (guest = green, our-stay = blue, block =
+  amber) plus a faint "… out" chip on each check-out day so same-day handovers
+  show both. Prev / Today / Next nav; chips link to the edit page.
+- `admin/EntryDateField.tsx` (client) — custom render for the Bookings
+  `start` / `end` fields: block-type labels ("Block start / Block end") + the
+  "block a whole day" hint, and the `end` picker opens on the `start` month and
+  can't go earlier. Wraps Payload's `DateTimeField`.
+
+`payload.config.ts` sets `admin.importMap.baseDir` to `src/` so the
+`/components/…#Export` paths resolve; re-run `npm run generate:importmap` after
+adding admin components.
 
 ### `src/seed/index.ts` — _(custom)_
 

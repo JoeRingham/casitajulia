@@ -22,7 +22,7 @@ export function makePageContentCollection(opts: {
     admin: {
       useAsTitle: "heading",
       defaultColumns: ["heading", "published"],
-      group: "Content",
+      group: false,
       description: opts.description,
     },
     access: {

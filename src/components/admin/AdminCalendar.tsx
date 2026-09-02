@@ -108,18 +108,22 @@ export function AdminCalendar() {
   const byDay = useMemo(() => {
     const start = firstDay(ym);
     const end = lastDay(ym);
-    const map = new Map<string, Entry[]>();
+    const map = new Map<string, { entry: Entry; leaving: boolean }[]>();
+    const push = (day: string, entry: Entry, leaving: boolean) => {
+      if (day < start || day > end) return;
+      const list = map.get(day) ?? [];
+      list.push({ entry, leaving });
+      map.set(day, list);
+    };
 
     for (const e of entries) {
-      // Occupied nights are [check-in .. check-out - 1].
+      // Occupied nights are [check-in .. check-out - 1] ...
       let day = villaDayString(e.start);
       const stop = villaDayString(e.end);
-      for (; day < stop; day = addDays(day, 1)) {
-        if (day < start || day > end) continue;
-        const list = map.get(day) ?? [];
-        list.push(e);
-        map.set(day, list);
-      }
+      for (; day < stop; day = addDays(day, 1)) push(day, e, false);
+      // ... plus a faint marker on the check-out day, so a same-day handover
+      // shows both the leaving entry and the arriving one.
+      push(stop, e, true);
     }
     return map;
   }, [ym, entries]);
@@ -206,17 +210,22 @@ export function AdminCalendar() {
                 {Number(day.slice(8, 10))}
               </div>
 
-              {dayEntries?.map((e) => (
+              {dayEntries?.map(({ entry: e, leaving }) => (
                 <a
-                  key={`${e.id}-${day}`}
+                  key={`${e.id}-${day}-${leaving ? "out" : "in"}`}
                   href={`${ADMIN}/collections/bookings/${e.id}`}
-                  title={`${entryLabel(e)} · ${TYPE_LABEL[e.type]}`}
+                  title={`${entryLabel(e)} · ${TYPE_LABEL[e.type]}${
+                    leaving ? " · leaves this day" : ""
+                  }`}
                   style={{
                     ...chipBase,
-                    borderLeft: `3px solid ${TYPE_COLOR[e.type]}`,
+                    borderLeft: `3px ${leaving ? "dashed" : "solid"} ${
+                      TYPE_COLOR[e.type]
+                    }`,
+                    opacity: leaving ? 0.5 : 1,
                   }}
                 >
-                  {entryLabel(e)}
+                  {leaving ? `${entryLabel(e)} out` : entryLabel(e)}
                 </a>
               ))}
             </div>

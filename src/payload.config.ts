@@ -25,9 +25,13 @@ export default buildConfig({
       titleSuffix: " · Casita Julia",
     },
     importMap: {
-      // Resolve the "/components/..." string paths (e.g. the Bookings
-      // beforeListTable calendar) relative to `src/`.
+      // Resolve the "/components/..." string paths relative to `src/`.
       baseDir: dirname,
+    },
+    components: {
+      // Every collection/global sets `admin.group: false`, so this is the whole
+      // sidebar — in the order we want it.
+      beforeNavLinks: ["/components/admin/AdminNav#AdminNav"],
     },
   },
   collections: [Users, Media, VillaContent, StayGuideContent, Bookings],
