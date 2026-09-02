@@ -2,12 +2,11 @@ import configPromise from "@payload-config";
 import { getPayload } from "payload";
 
 import {
-  type BlockRange,
-  type BookingRange,
-  eachDay,
+  type EntryRange,
   publicAvailability,
   toDayString,
 } from "@/lib/availability";
+import { eachDay } from "@/lib/calendar";
 
 export async function getClient() {
   return getPayload({ config: configPromise });
@@ -42,51 +41,29 @@ export function getStayGuideContent() {
 
 /**
  * Public calendar data: a day -> "available" | "unavailable" map for the given
- * inclusive day range. Guest names and block reasons never leave this function.
+ * inclusive day range. Entry types, guest names and notes never leave here.
  */
 export async function getPublicAvailability(fromDay: string, toDay: string) {
   const payload = await getClient();
 
-  const [bookings, blocks] = await Promise.all([
-    payload.find({
-      collection: "bookings",
-      where: {
-        and: [
-          { status: { equals: "confirmed" } },
-          { checkOut: { greater_than_equal: fromDay } },
-          { checkIn: { less_than_equal: toDay } },
-        ],
-      },
-      limit: 1000,
-      depth: 0,
-      pagination: false,
-    }),
-    payload.find({
-      collection: "blocks",
-      where: {
-        and: [
-          { end: { greater_than_equal: fromDay } },
-          { start: { less_than_equal: toDay } },
-        ],
-      },
-      limit: 1000,
-      depth: 0,
-      pagination: false,
-    }),
-  ]);
+  const res = await payload.find({
+    collection: "bookings",
+    where: {
+      and: [
+        { end: { greater_than_equal: fromDay } },
+        { start: { less_than_equal: toDay } },
+      ],
+    },
+    limit: 2000,
+    depth: 0,
+    pagination: false,
+  });
 
-  const bookingRanges: BookingRange[] = bookings.docs.map((b) => ({
-    id: b.id,
-    checkIn: toDayString(b.checkIn as string),
-    checkOut: toDayString(b.checkOut as string),
-    status: b.status as BookingRange["status"],
+  const entries: EntryRange[] = res.docs.map((e) => ({
+    id: e.id,
+    start: toDayString(e.start as string),
+    end: toDayString(e.end as string),
   }));
 
-  const blockRanges: BlockRange[] = blocks.docs.map((b) => ({
-    id: b.id,
-    start: toDayString(b.start as string),
-    end: toDayString(b.end as string),
-  }));
-
-  return publicAvailability(eachDay(fromDay, toDay), bookingRanges, blockRanges);
+  return publicAvailability(eachDay(fromDay, toDay), entries);
 }

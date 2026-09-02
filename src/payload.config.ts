@@ -7,7 +7,6 @@ import { s3Storage } from "@payloadcms/storage-s3";
 import { buildConfig } from "payload";
 import sharp from "sharp";
 
-import { Blocks } from "@/collections/Blocks";
 import { Bookings } from "@/collections/Bookings";
 import { Media } from "@/collections/Media";
 import { StayGuideContent } from "@/collections/StayGuideContent";
@@ -26,30 +25,12 @@ export default buildConfig({
       titleSuffix: " · Casita Julia",
     },
     importMap: {
-      // Resolve component string paths below relative to `src/`.
+      // Resolve the "/components/..." string paths (e.g. the Bookings
+      // beforeListTable calendar) relative to `src/`.
       baseDir: dirname,
     },
-    components: {
-      // A "Calendar" link in the sidebar → a month grid of bookings + blocks.
-      beforeNavLinks: [
-        "/components/admin/CalendarNavLink#CalendarNavLink",
-      ],
-      views: {
-        calendar: {
-          Component: "/components/admin/CalendarView#CalendarView",
-          path: "/calendar",
-        },
-      },
-    },
   },
-  collections: [
-    Users,
-    Media,
-    VillaContent,
-    StayGuideContent,
-    Bookings,
-    Blocks,
-  ],
+  collections: [Users, Media, VillaContent, StayGuideContent, Bookings],
   globals: [General],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",

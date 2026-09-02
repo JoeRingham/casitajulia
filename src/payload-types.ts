@@ -72,7 +72,6 @@ export interface Config {
     villaContent: VillaContent;
     stayGuideContent: StayGuideContent;
     bookings: Booking;
-    blocks: Block;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -85,7 +84,6 @@ export interface Config {
     villaContent: VillaContentSelect<false> | VillaContentSelect<true>;
     stayGuideContent: StayGuideContentSelect<false> | StayGuideContentSelect<true>;
     bookings: BookingsSelect<false> | BookingsSelect<true>;
-    blocks: BlocksSelect<false> | BlocksSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -295,32 +293,18 @@ export interface StayGuideContent {
  */
 export interface Booking {
   id: number;
-  guestName: string;
-  checkIn: string;
-  checkOut: string;
-  /**
-   * Confirmed stays block the calendar. Enquiries are shown to you only.
-   */
-  status: 'enquiry' | 'confirmed';
-  /**
-   * Only ever visible here in the admin — never on the site.
-   */
-  notes?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blocks".
- */
-export interface Block {
-  id: number;
-  /**
-   * e.g. “Family staying”, “Kitchen works”.
-   */
-  label: string;
+  type: 'guest' | 'owner' | 'block';
+  guestName?: string | null;
   start: string;
+  /**
+   * The morning you leave — that night is free again. To block a whole calendar day, set check-in to the day before and check-out to the day after.
+   */
   end: string;
+  /**
+   * Optional. Only ever visible here in the admin.
+   */
+  note?: string | null;
+  title?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -367,10 +351,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'bookings';
         value: number | Booking;
-      } | null)
-    | ({
-        relationTo: 'blocks';
-        value: number | Block;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -533,22 +513,12 @@ export interface StayGuideContentSelect<T extends boolean = true> {
  * via the `definition` "bookings_select".
  */
 export interface BookingsSelect<T extends boolean = true> {
+  type?: T;
   guestName?: T;
-  checkIn?: T;
-  checkOut?: T;
-  status?: T;
-  notes?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blocks_select".
- */
-export interface BlocksSelect<T extends boolean = true> {
-  label?: T;
   start?: T;
   end?: T;
+  note?: T;
+  title?: T;
   updatedAt?: T;
   createdAt?: T;
 }

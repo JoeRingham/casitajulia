@@ -7,39 +7,36 @@ then the admin username and password (Joe sets these up).
 
 ---
 
-## Seeing everything at a glance
+## Bookings — the calendar
 
-**Calendar** (top of the sidebar) — a month view of every stay and blocked
-period. Confirmed stays have a solid bar, enquiries a dashed one, blocked dates
-an amber bar. Click any name to jump straight to that booking. Use Prev / Today
-/ Next to move between months.
+**Bookings** (top of the sidebar). The page opens with a month calendar of
+everything, then the list below. Prev / Today / Next move between months; click
+any bar to open that entry.
 
-## Marking dates as booked
+**Create new** to add one. Every entry has:
 
-**Calendar → Bookings → Create new**
+- **Type** — one of:
+  - *Guest stay* — a friend staying. Adds a **Guest name** field.
+  - *Our stay* — the family using it. (This is the default.)
+  - *Block* — maintenance, a closed season, anything else.
+- **Check-in / Check-out** — like a hotel. The nights from check-in up to (not
+  including) check-out are unavailable; the check-out day is free again.
+  - To leave a night free for the cleaner after a stay, just set check-out to
+    the guest's departure day — they don't sleep that night, and the next entry
+    can't start before it.
+  - To block a **whole calendar day** (say the 5th), set check-in to the 4th and
+    check-out to the 6th.
+- **Note** — optional, admin-only. For a Block or Our stay it's used as the
+  label on the calendar.
 
-- **Guest name** — whoever is staying.
-- **Check-in / Check-out** — the day they arrive and the day they leave. The
-  check-out day is treated as free, so the next guest can arrive that same day.
-- **Status:**
-  - *Enquiry* — someone has asked but it's not settled. Only you see these.
-  - *Confirmed* — it's agreed. This is what greys the dates out on the calendar
-    friends see.
-- **Private notes** — anything you like. Never shown on the site.
+Calendar colours: **green** = guest stay, **blue** = our stay, **amber** =
+block.
 
-If you try to confirm dates that clash with another confirmed stay, the panel
-will stop you and tell you which stay it clashes with.
+If dates overlap another entry, the panel stops you and names the clash.
+Entries that only *touch* (one checks out the day the next checks in) are fine —
+that's a same-day handover.
 
-To change or cancel a stay, open it from the Bookings list and edit or delete it.
-
-## Blocking dates that aren't a guest (your own trips, work on the house)
-
-**Calendar → Blocks → Create new**
-
-- **Reason** — e.g. "Family staying", "Kitchen works". Only you see this; friends
-  just see the dates as unavailable.
-- **From / Until** — both days are included, so "From the 20th until the 27th"
-  blocks all eight days.
+To change or cancel, open it from the list and edit or delete it.
 
 ## Editing the two content pages
 

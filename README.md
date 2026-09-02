@@ -64,9 +64,9 @@ local-disk storage won't work there.
 | `src/proxy.ts` | Shared-password gate over the whole site (Next 16 "proxy"). |
 | `src/lib/gate.ts` | Signs / checks the friends cookie. |
 | `src/payload.config.ts` | Payload config: DB, storage, collections. |
-| `src/collections/*` | `users`, `media`, `villaContent` + `stayGuideContent` (both from `makePageContentCollection`), `bookings`, `blocks`. |
+| `src/collections/*` | `users`, `media`, `villaContent` + `stayGuideContent` (both from `makePageContentCollection`), `bookings`. |
 | `src/globals/General.ts` | Editable site copy + home-page photo — the "General" panel in the admin. |
-| `src/lib/availability.ts` | Turns bookings + blocks into "available / unavailable" days. |
+| `src/lib/availability.ts` | Turns calendar entries into "available / unavailable" days. |
 | `src/lib/calendar.ts` | Villa-day normalisation + month-grid maths. |
 | `src/app/(frontend)/*` | The friend-facing site. |
 | `src/app/(auth)/enter` | The password page. |
@@ -76,16 +76,17 @@ Full walkthrough: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ### Data model notes
 
-- **Bookings** use half-open nights: check-in the 10th / check-out the 14th
-  occupies the 10th–13th; the 14th is free for the next arrival.
-- **Blocks** (family use, maintenance, closed seasons) are inclusive: "from the
-  20th until the 27th" means all eight days are unavailable.
-- Only **confirmed** bookings and blocks appear on the public calendar.
-  Enquiries are visible to admins only and may overlap freely.
-- Guest names and block reasons never leave the server for the public calendar —
+- **One `bookings` collection** for everything on the calendar. A `type` of
+  `guest` / `owner` / `block` toggles the guest-name field and the chip colour;
+  the dates and rules are identical for all three.
+- **Half-open nights:** check-in the 10th / check-out the 14th occupies the
+  nights of the 10th–13th; the 14th is available again (public and admin alike).
+- **No overlaps** between any two entries. Entries that only touch
+  (`A.checkOut === B.checkIn`) are allowed — a same-day handover.
+- No cleaner-gap setting: set check-out to the departure day to keep that night
+  free; to block a whole calendar day, use the day before / day after.
+- Types, guest names and notes never leave the server for the public calendar —
   friends only ever see "available / unavailable".
-- A cleaner-turnaround gap is wired through (`CLEANER_GAP_DAYS` in
-  `src/lib/availability.ts`) but set to `0` for now.
 
 ## Scripts
 

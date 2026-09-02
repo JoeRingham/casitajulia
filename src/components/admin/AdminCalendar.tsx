@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   addDays,
   addMonths,
-  eachDay,
   firstDay,
   lastDay,
   monthGrid,
@@ -15,28 +14,42 @@ import {
   type YearMonth,
 } from "@/lib/calendar";
 
-type Booking = {
-  id: number;
-  guestName: string;
-  checkIn: string;
-  checkOut: string;
-  status: "enquiry" | "confirmed";
-};
+type EntryType = "guest" | "owner" | "block";
 
-type Block = {
+type Entry = {
   id: number;
-  label: string;
+  type: EntryType;
+  guestName?: string | null;
+  note?: string | null;
+  title?: string | null;
   start: string;
   end: string;
 };
 
-type DayEntries = { bookings: Booking[]; blocks: Block[] };
-
 const ADMIN = "/admin";
+
+const TYPE_LABEL: Record<EntryType, string> = {
+  guest: "Guest stay",
+  owner: "Our stay",
+  block: "Block",
+};
+
+// green / blue / amber
+const TYPE_COLOR: Record<EntryType, string> = {
+  guest: "var(--theme-success-500)",
+  owner: "#3b82f6",
+  block: "var(--theme-warning-500)",
+};
 
 function thisMonth(): YearMonth {
   const now = new Date();
   return { year: now.getUTCFullYear(), month: now.getUTCMonth() + 1 };
+}
+
+function entryLabel(e: Entry): string {
+  return (
+    e.title || e.guestName || e.note || TYPE_LABEL[e.type] || "Entry"
+  );
 }
 
 const btn: React.CSSProperties = {
@@ -67,28 +80,21 @@ const chipBase: React.CSSProperties = {
 
 export function AdminCalendar() {
   const [ym, setYm] = useState<YearMonth>(thisMonth);
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [blocks, setBlocks] = useState<Block[]>([]);
+  const [entries, setEntries] = useState<Entry[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [rb, rbl] = await Promise.all([
-          fetch("/api/bookings?depth=0&limit=2000&sort=checkIn", {
-            credentials: "include",
-          }),
-          fetch("/api/blocks?depth=0&limit=2000&sort=start", {
-            credentials: "include",
-          }),
-        ]);
-        if (!rb.ok || !rbl.ok) throw new Error("request failed");
-        const jb = await rb.json();
-        const jbl = await rbl.json();
+        const res = await fetch(
+          "/api/bookings?depth=0&limit=2000&sort=start",
+          { credentials: "include" },
+        );
+        if (!res.ok) throw new Error("request failed");
+        const json = await res.json();
         if (cancelled) return;
-        setBookings(jb.docs ?? []);
-        setBlocks(jbl.docs ?? []);
+        setEntries(json.docs ?? []);
         setStatus("ready");
       } catch {
         if (!cancelled) setStatus("error");
@@ -102,39 +108,27 @@ export function AdminCalendar() {
   const byDay = useMemo(() => {
     const start = firstDay(ym);
     const end = lastDay(ym);
-    const map = new Map<string, DayEntries>();
-    const bucket = (day: string) => {
-      let e = map.get(day);
-      if (!e) {
-        e = { bookings: [], blocks: [] };
-        map.set(day, e);
-      }
-      return e;
-    };
+    const map = new Map<string, Entry[]>();
 
-    for (const b of bookings) {
-      const ci = villaDayString(b.checkIn);
-      const co = villaDayString(b.checkOut);
+    for (const e of entries) {
       // Occupied nights are [check-in .. check-out - 1].
-      for (const day of eachDay(ci, addDays(co, -1))) {
+      let day = villaDayString(e.start);
+      const stop = villaDayString(e.end);
+      for (; day < stop; day = addDays(day, 1)) {
         if (day < start || day > end) continue;
-        bucket(day).bookings.push(b);
-      }
-    }
-    for (const bl of blocks) {
-      for (const day of eachDay(villaDayString(bl.start), villaDayString(bl.end))) {
-        if (day < start || day > end) continue;
-        bucket(day).blocks.push(bl);
+        const list = map.get(day) ?? [];
+        list.push(e);
+        map.set(day, list);
       }
     }
     return map;
-  }, [ym, bookings, blocks]);
+  }, [ym, entries]);
 
   const cells = monthGrid(ym);
   const today = villaDayString(new Date());
 
   return (
-    <div>
+    <div style={{ marginBottom: 24 }}>
       <div
         style={{
           display: "flex",
@@ -158,7 +152,7 @@ export function AdminCalendar() {
         ) : null}
         {status === "error" ? (
           <span style={{ color: "var(--theme-error-500)" }}>
-            couldn’t load bookings
+            couldn’t load entries
           </span>
         ) : null}
       </div>
@@ -187,7 +181,7 @@ export function AdminCalendar() {
 
         {cells.map((day, i) => {
           if (!day) return <div key={`pad-${i}`} />;
-          const entries = byDay.get(day);
+          const dayEntries = byDay.get(day);
           const isToday = day === today;
           return (
             <div
@@ -212,34 +206,17 @@ export function AdminCalendar() {
                 {Number(day.slice(8, 10))}
               </div>
 
-              {entries?.bookings.map((b) => (
+              {dayEntries?.map((e) => (
                 <a
-                  key={`b-${b.id}-${day}`}
-                  href={`${ADMIN}/collections/bookings/${b.id}`}
-                  title={`${b.guestName} · ${b.status}`}
+                  key={`${e.id}-${day}`}
+                  href={`${ADMIN}/collections/bookings/${e.id}`}
+                  title={`${entryLabel(e)} · ${TYPE_LABEL[e.type]}`}
                   style={{
                     ...chipBase,
-                    borderLeft: `3px ${
-                      b.status === "confirmed" ? "solid" : "dashed"
-                    } var(--theme-success-500)`,
-                    opacity: b.status === "confirmed" ? 1 : 0.85,
+                    borderLeft: `3px solid ${TYPE_COLOR[e.type]}`,
                   }}
                 >
-                  {b.guestName}
-                </a>
-              ))}
-
-              {entries?.blocks.map((bl) => (
-                <a
-                  key={`bl-${bl.id}-${day}`}
-                  href={`${ADMIN}/collections/blocks/${bl.id}`}
-                  title={bl.label}
-                  style={{
-                    ...chipBase,
-                    borderLeft: "3px solid var(--theme-warning-500)",
-                  }}
-                >
-                  {bl.label}
+                  {entryLabel(e)}
                 </a>
               ))}
             </div>
@@ -257,15 +234,15 @@ export function AdminCalendar() {
           flexWrap: "wrap",
         }}
       >
-        <Legend swatch="3px solid var(--theme-success-500)" label="Confirmed stay" />
-        <Legend swatch="3px dashed var(--theme-success-500)" label="Enquiry" />
-        <Legend swatch="3px solid var(--theme-warning-500)" label="Blocked" />
+        <Legend color={TYPE_COLOR.guest} label="Guest stay" />
+        <Legend color={TYPE_COLOR.owner} label="Our stay" />
+        <Legend color={TYPE_COLOR.block} label="Block" />
       </div>
     </div>
   );
 }
 
-function Legend({ swatch, label }: { swatch: string; label: string }) {
+function Legend({ color, label }: { color: string; label: string }) {
   return (
     <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <span
@@ -275,7 +252,7 @@ function Legend({ swatch, label }: { swatch: string; label: string }) {
           height: 12,
           borderRadius: 3,
           background: "var(--theme-elevation-100)",
-          borderLeft: swatch,
+          borderLeft: `3px solid ${color}`,
         }}
       />
       {label}

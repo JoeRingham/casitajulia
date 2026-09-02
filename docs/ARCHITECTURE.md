@@ -80,7 +80,7 @@ password gate lives.
 
 - The shared-password gate (`proxy.ts` + `lib/gate.ts` + the `/enter` page)
 - Every page of the public site
-- The availability logic (bookings/blocks → a calendar of free/busy days)
+- The availability logic (calendar entries → a calendar of free/busy days)
 - Villa-day date handling
 - The _descriptions_ of the Payload collections — Payload runs them, we authored
   the fields, access rules and hooks
@@ -135,8 +135,7 @@ you'll change most as the site grows.
 | `Users.ts`                    | `users`             | Admin logins. `loginWithUsername` → sign in with `admin`, no email. All operations locked to logged-in admins. |
 | `VillaContent.ts` / `StayGuideContent.ts` | `villa_content` / `stay_guide_content` | The two content pages (`/villa`, `/info`). Both are one call to `makePageContentCollection` — an orderable list of sections, each `heading` + `body` (rich text) + `images` (array of media + caption). |
 | `Media.ts`                    | `media`             | The one shared image library. An "upload" collection — Payload stores the file, adds `url`/`width`/…. Referenced by section images, the home hero, and rich-text embeds. |
-| `Bookings.ts`                 | `bookings`          | Guest name, dates, enquiry/confirmed, private notes. `access.read` is admin-only so guest names can't leak. A `beforeValidate` hook runs the conflict check before saving. |
-| `Blocks.ts`                   | `blocks`            | Non-guest unavailable periods (family use, works). Shown to friends only as "unavailable". |
+| `Bookings.ts`                 | `bookings`          | **Everything on the calendar** — a `type` of `guest` / `owner` / `block`, check-in / check-out dates, optional `note`, plus a hidden `title` (hook-populated for the list). One shape for all three; `type` only toggles the guest-name field and the chip colour. Admin-only for every operation. `beforeValidate` hook: guest-name required for guest stays, check-out after check-in, and no overlap with any other entry. Its `beforeListTable` renders the admin month calendar. |
 
 `makePageContentCollection.ts` is the shared factory for the two content pages —
 same pattern as `fields/villaDate.ts`. The two wrapper files just set the slug
@@ -146,7 +145,8 @@ Two Payload terms:
 
 - **Hook** — a function that runs at a point in the save cycle (before
   validation, after change, …). We use `beforeValidate` on Bookings to reject
-  overlapping confirmed stays, and a field-level hook to normalise dates.
+  overlapping entries, `beforeChange` to build the list `title`, and a
+  field-level hook to normalise dates.
 - **Access control** — the `access: { read, create, update, delete }` object on
   each collection. Each is a function returning `true`/`false`. This is Payload's
   permission system, enforced on the REST/GraphQL API.
@@ -165,15 +165,14 @@ in code as `findGlobal({ slug: "general" })`, and shows in the admin as the
 | ----------------- | ------------------------------------------------------------------------------------------------------------- |
 | `gate.ts`         | The shared-password system — check the password, mint a signed cookie (JWT via `jose`), verify it. See §6.     |
 | `access.ts`       | Two helpers (`authenticated`, `anyone`) reused across collections so the rules read consistently.               |
-| `availability.ts` | The booking maths: bookings + blocks → `day → "available" \| "unavailable"`. Plus `assertNoConflict()`. See §7. |
+| `availability.ts` | The booking maths: entries → `day → "available" \| "unavailable"`. Plus `assertNoConflict()`. See §7. |
 | `calendar.ts`     | Villa-day normalisation + pure month-grid arithmetic. See §7.                                                   |
 | `data.ts`         | Server-side fetch helpers (`getGeneral`, `getVillaContent`, `getStayGuideContent`, `getPublicAvailability`) — these call Payload's Local API. |
 
 ### `src/fields/villaDate.ts` — a reusable field _(custom)_
 
-Bookings and Blocks each have two date fields with identical config (day-only
-picker + the villa-day normalisation hook). This factory builds one, defined
-once.
+Bookings has two date fields with identical config (day-only picker + the
+villa-day normalisation hook). This factory builds one, defined once.
 
 ### `src/components/` — _(custom)_
 
@@ -182,14 +181,13 @@ once.
   stripped.
 - `PageContent.tsx` — renders a content page (`/villa` or `/info`): the list of
   sections with heading, rich text, and image grid. Also presentational.
-- `admin/CalendarView.tsx` + `admin/AdminCalendar.tsx` + `admin/CalendarNavLink.tsx`
-  — the **`/admin/calendar`** view. `CalendarView` (server) wraps the admin
-  shell (`DefaultTemplate`); `AdminCalendar` (client) fetches `/api/bookings`
-  and `/api/blocks` and draws a month grid with a chip per stay/block (confirmed
-  = solid, enquiry = dashed, block = amber), each linking to its edit page.
-  Registered via `admin.components.views.calendar` + `beforeNavLinks` in
-  `payload.config.ts` (which also sets `admin.importMap.baseDir` to `src/` so the
-  `/components/...#Export` paths resolve). Re-run `npm run generate:importmap`
+- `admin/AdminCalendar.tsx` (client) — the month grid shown on the **Bookings
+  list page**. Fetches `/api/bookings`, draws a chip per entry across its
+  occupied nights (guest = green, our-stay = blue, block = amber), each linking
+  to its edit page; Prev / Today / Next nav. Wired as
+  `admin.components.beforeListTable` on the `bookings` collection.
+  `payload.config.ts` sets `admin.importMap.baseDir` to `src/` so the
+  `/components/...#Export` path resolves; re-run `npm run generate:importmap`
   after adding admin components.
 
 ### `src/seed/index.ts` — _(custom)_
@@ -286,16 +284,19 @@ just strings and nothing touches a timezone again.
 `calendar.ts` also holds the month-grid maths (`monthGrid`, `monthLabel`,
 `addMonths`, …) — pure string/number arithmetic.
 
-**Booking semantics** (`availability.ts`):
+**Entry semantics** (`availability.ts`) — one rule for every `type`:
 
-- **Bookings** are half-open nights: check-in the 10th / check-out the 14th
-  occupies the 10th–13th; the 14th is free for the next arrival.
-- **Blocks** are inclusive: "from the 20th until the 27th" = all eight days
-  unavailable.
-- Only **confirmed** bookings and blocks make a day unavailable on the public
-  calendar. Enquiries are admin-only and may overlap anything.
-- `CLEANER_GAP_DAYS` (currently `0`) is the knob for reserving days after each
-  check-out for the cleaner — bumping the constant is the whole change.
+- **Half-open nights.** An entry with check-in the 10th / check-out the 14th
+  occupies the nights of the 10th–13th. The check-out day is available again —
+  same on the public calendar and the admin one.
+- **No overlaps.** On save, the proposed `[check-in, check-out)` is checked
+  against every other entry; any shared night → rejected with a message naming
+  the clash. Entries that merely *touch* (`A.checkOut === B.checkIn`) don't
+  clash — that's a back-to-back / same-day handover, and it's allowed.
+- **No cleaner-gap setting.** To leave a night free after a stay, enter the
+  guest's departure day as check-out (they don't sleep that night); the next
+  entry can't start before it. To block a whole calendar day, enter check-in =
+  the day before and check-out = the day after.
 
 ---
 
@@ -307,8 +308,8 @@ just strings and nothing touches a timezone again.
    allowed through.
 2. Next routes to `src/app/(frontend)/calendar/page.tsx` (server component).
 3. It calls `getPublicAvailability()` in `lib/data.ts`, which uses the Local API
-   to read confirmed bookings + blocks, runs them through `lib/availability.ts`,
-   and gets a `day → status` map (no names).
+   to read the `bookings` entries overlapping the window, runs them through
+   `lib/availability.ts`, and gets a `day → status` map (no names, no types).
 4. It renders `<MonthCalendar>` twice. Finished HTML goes to the browser.
 
 **Someone with no cookie opens `/`:**

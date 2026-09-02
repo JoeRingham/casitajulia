@@ -1,20 +1,43 @@
 import { APIError, type CollectionConfig } from "payload";
 
+import { villaDate } from "@/fields/villaDate";
 import { authenticated } from "@/lib/access";
 import { assertNoConflict, toDayString } from "@/lib/availability";
-import { villaDate } from "@/fields/villaDate";
 
 /**
- * A friend's stay. Only admins can read these — guest names never reach the
- * public calendar, which shows nothing but "available / booked".
+ * Every entry on the calendar — a guest stay, the family's own stay, or a block
+ * (maintenance, closed season). One shape for all three; `type` only decides
+ * which extra field shows and how the chip looks.
+ *
+ * Dates are check-in / check-out, half-open: the nights from `start` up to (not
+ * including) `end` are unavailable. See src/lib/availability.ts.
+ *
+ * Admin-only for every operation — nothing here reaches the public calendar
+ * except "these nights are unavailable".
  */
+const TYPE_LABELS: Record<string, string> = {
+  guest: "Guest stay",
+  owner: "Our stay",
+  block: "Block",
+};
+
+function entryTitle(data: Record<string, unknown> | undefined | null): string {
+  const type = (data?.type as string) ?? "owner";
+  const note = (data?.note as string) ?? "";
+  if (type === "guest") return (data?.guestName as string) || "Guest stay";
+  return note || TYPE_LABELS[type] || "Entry";
+}
+
 export const Bookings: CollectionConfig = {
   slug: "bookings",
+  labels: { singular: "Booking", plural: "Bookings" },
   admin: {
-    useAsTitle: "guestName",
-    defaultColumns: ["guestName", "checkIn", "checkOut", "status"],
-    group: "Calendar",
-    listSearchableFields: ["guestName", "notes"],
+    useAsTitle: "title",
+    defaultColumns: ["title", "type", "start", "end"],
+    listSearchableFields: ["guestName", "note"],
+    components: {
+      beforeListTable: ["/components/admin/AdminCalendar#AdminCalendar"],
+    },
   },
   access: {
     read: authenticated,
@@ -24,51 +47,65 @@ export const Bookings: CollectionConfig = {
   },
   fields: [
     {
+      name: "type",
+      type: "select",
+      required: true,
+      defaultValue: "owner",
+      options: [
+        { label: "Guest stay", value: "guest" },
+        { label: "Our stay", value: "owner" },
+        { label: "Block (maintenance, closed season…)", value: "block" },
+      ],
+      admin: { position: "sidebar" },
+    },
+    {
       name: "guestName",
       type: "text",
-      required: true,
       label: "Guest name",
+      admin: { condition: (data) => data?.type === "guest" },
     },
     {
       type: "row",
       fields: [
-        villaDate("checkIn", "Check-in", { width: "50%" }),
-        villaDate("checkOut", "Check-out", { width: "50%" }),
+        villaDate("start", "Check-in", { width: "50%" }),
+        villaDate("end", "Check-out", {
+          width: "50%",
+          description:
+            "The morning you leave — that night is free again. To block a whole calendar day, set check-in to the day before and check-out to the day after.",
+        }),
       ],
     },
     {
-      name: "status",
-      type: "select",
-      required: true,
-      defaultValue: "enquiry",
-      options: [
-        { label: "Enquiry (pencilled in)", value: "enquiry" },
-        { label: "Confirmed", value: "confirmed" },
-      ],
-      admin: {
-        position: "sidebar",
-        description:
-          "Confirmed stays block the calendar. Enquiries are shown to you only.",
-      },
-    },
-    {
-      name: "notes",
+      name: "note",
       type: "textarea",
-      label: "Private notes",
+      label: "Note",
       admin: {
-        description:
-          "Only ever visible here in the admin — never on the site.",
+        description: "Optional. Only ever visible here in the admin.",
       },
+    },
+    {
+      name: "title",
+      type: "text",
+      admin: { hidden: true },
     },
   ],
   hooks: {
     beforeValidate: [
       async ({ data, req, originalDoc, operation }) => {
         const merged = { ...originalDoc, ...data };
-        const checkIn = merged?.checkIn ? toDayString(merged.checkIn) : null;
-        const checkOut = merged?.checkOut ? toDayString(merged.checkOut) : null;
+        const start = merged?.start ? toDayString(merged.start) : null;
+        const end = merged?.end ? toDayString(merged.end) : null;
 
-        if (checkIn && checkOut && checkOut <= checkIn) {
+        if (merged?.type === "guest" && !merged?.guestName) {
+          throw new APIError(
+            "Guest name is required for a guest stay.",
+            400,
+            undefined,
+            true,
+          );
+        }
+
+        if (start && end && end <= start) {
           throw new APIError(
             "Check-out must be after check-in.",
             400,
@@ -77,19 +114,23 @@ export const Bookings: CollectionConfig = {
           );
         }
 
-        // Enquiries are just pencil marks and may overlap anything. Only a
-        // confirmed stay must be clear of other confirmed stays and blocks.
-        if (checkIn && checkOut && merged?.status === "confirmed") {
+        if (start && end) {
           await assertNoConflict(req.payload, {
-            checkIn,
-            checkOut,
-            ignoreBookingId:
+            start,
+            end,
+            ignoreId:
               operation === "update" ? (originalDoc?.id ?? null) : null,
           });
         }
 
         return data;
       },
+    ],
+    beforeChange: [
+      ({ data, originalDoc }) => ({
+        ...data,
+        title: entryTitle({ ...originalDoc, ...data }),
+      }),
     ],
   },
 };
