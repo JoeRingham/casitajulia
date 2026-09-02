@@ -60,6 +60,20 @@ export function monthParam({ year, month }: YearMonth): string {
   return `${year}-${String(month).padStart(2, "0")}`;
 }
 
+/** Shift a 'YYYY-MM-DD' day string by `n` days. */
+export function addDays(day: string, n: number): string {
+  const d = new Date(`${day}T00:00:00.000Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+/** Inclusive list of day strings from `start` to `endInclusive`. */
+export function eachDay(start: string, endInclusive: string): string[] {
+  const out: string[] = [];
+  for (let d = start; d <= endInclusive; d = addDays(d, 1)) out.push(d);
+  return out;
+}
+
 export function addMonths({ year, month }: YearMonth, delta: number): YearMonth {
   const zero = year * 12 + (month - 1) + delta;
   return { year: Math.floor(zero / 12), month: (zero % 12) + 1 };

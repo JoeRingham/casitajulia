@@ -25,7 +25,22 @@ export default buildConfig({
     meta: {
       titleSuffix: " · Casita Julia",
     },
-    components: {},
+    importMap: {
+      // Resolve component string paths below relative to `src/`.
+      baseDir: dirname,
+    },
+    components: {
+      // A "Calendar" link in the sidebar → a month grid of bookings + blocks.
+      beforeNavLinks: [
+        "/components/admin/CalendarNavLink#CalendarNavLink",
+      ],
+      views: {
+        calendar: {
+          Component: "/components/admin/CalendarView#CalendarView",
+          path: "/calendar",
+        },
+      },
+    },
   },
   collections: [
     Users,

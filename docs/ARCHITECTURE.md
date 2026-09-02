@@ -177,11 +177,20 @@ once.
 
 ### `src/components/` — _(custom)_
 
-- `MonthCalendar.tsx` — draws one month grid on `/calendar`. Purely
+- `MonthCalendar.tsx` — draws one month grid on the public `/calendar`. Purely
   presentational; handed a precomputed free/busy map with names already
   stripped.
 - `PageContent.tsx` — renders a content page (`/villa` or `/info`): the list of
   sections with heading, rich text, and image grid. Also presentational.
+- `admin/CalendarView.tsx` + `admin/AdminCalendar.tsx` + `admin/CalendarNavLink.tsx`
+  — the **`/admin/calendar`** view. `CalendarView` (server) wraps the admin
+  shell (`DefaultTemplate`); `AdminCalendar` (client) fetches `/api/bookings`
+  and `/api/blocks` and draws a month grid with a chip per stay/block (confirmed
+  = solid, enquiry = dashed, block = amber), each linking to its edit page.
+  Registered via `admin.components.views.calendar` + `beforeNavLinks` in
+  `payload.config.ts` (which also sets `admin.importMap.baseDir` to `src/` so the
+  `/components/...#Export` paths resolve). Re-run `npm run generate:importmap`
+  after adding admin components.
 
 ### `src/seed/index.ts` — _(custom)_
 
@@ -380,8 +389,6 @@ database.
 
 ## 12. Deferred / not built yet
 
-- Admin calendar view (month grid with guest names) — Payload has no built-in
-  calendar; it'd be a custom admin view.
 - The cleaner turnaround rule and cleaner notifications.
 - iCal feed, CSV export, per-guest stay pages, email notifications.
 - Restricting wifi/lockbox details to confirmed guests near their stay.

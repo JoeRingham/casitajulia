@@ -7,6 +7,13 @@ then the admin username and password (Joe sets these up).
 
 ---
 
+## Seeing everything at a glance
+
+**Calendar** (top of the sidebar) — a month view of every stay and blocked
+period. Confirmed stays have a solid bar, enquiries a dashed one, blocked dates
+an amber bar. Click any name to jump straight to that booking. Use Prev / Today
+/ Next to move between months.
+
 ## Marking dates as booked
 
 **Calendar → Bookings → Create new**
